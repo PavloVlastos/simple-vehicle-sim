@@ -27,6 +27,7 @@ set(sources
 add_compile_options(-Wall -Wextra)
 
 add_executable(mav_sim main.c ${sources})
-add_executable(example_secondary secondary.c)
+add_executable(example_secondary secondary.c ${CMAKE_CURRENT_SOURCE_DIR}/modules/lin_alg/lin_alg.c)
 
 target_link_libraries(mav_sim m)
+target_link_libraries(example_secondary m)

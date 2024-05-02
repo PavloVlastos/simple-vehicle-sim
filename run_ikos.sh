@@ -8,6 +8,9 @@ ikos -I modules/common/ \
     -I modules/interface \
     -I modules/model \
     main.c -o ikos_generated/main.db
-    # -a=boa,nullity,dbz,prover,upa,uva,sio,uio,shc,poa
+    # -a=boa,dbz,nullity,prover,upa,uva,sio,uio,shc,poa,pcmp,sound,fca,dca,dfa,dbg,watch\
 
-ikos -I modules/common/ secondary.c -o ikos_generated/secondary.db
+ikos -I modules/common/ \
+     -I modules/lin_alg \
+     --entry-points=main,sum_vec\
+    secondary.c -o ikos_generated/secondary.db
