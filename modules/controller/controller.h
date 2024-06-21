@@ -1,13 +1,16 @@
 #ifndef CONTROLLER_H
 #define CONTROLLER_H
 
-// #include "common.h"
-#include "lin_alg.h"
+#include <stdio.h>
+#include <string.h>
 #include <math.h>
+
+#include "common.h"
+#include "lin_alg.h"
 
 #define WP_THRESH 1.0
 
-int controller_init(void);
+int controller_init(int verbose);
 
 int update_waypoint(float x, float y);
 

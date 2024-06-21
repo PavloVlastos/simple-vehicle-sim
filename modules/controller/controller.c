@@ -3,8 +3,16 @@
 static float waypoint[DIM4][DIM2];
 static int wp_index = 0;
 
-int controller_init(void)
+int controller_init(int verbose)
 {
+    int status = 0;
+
+    if (verbose == 1) {
+        printf(" |____ initializing controller\r\n");
+        printf(" |______ DIM4 = %d\r\n", DIM4);
+        printf(" |______ DIM2 = %d\r\n", DIM2);
+    }
+
     waypoint[0][0] = 0.0;   // x
     waypoint[0][1] = 10.0; // y
 
@@ -16,6 +24,12 @@ int controller_init(void)
 
     waypoint[3][0] = -10.0; // x
     waypoint[3][1] = -10.0; // y
+
+    if (verbose == 1) {
+        printf(" |____ finished controller init\r\n");
+    }
+
+    return status;
 }
 
 int update_waypoint(float x, float y)

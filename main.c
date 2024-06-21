@@ -5,6 +5,8 @@
 #include "controller.h"
 #include "interface.h"
 #include "model.h"
+#include "lin_alg.h"
+
 
 int main(int argc, char *argv[])
 {
@@ -101,13 +103,13 @@ int main(int argc, char *argv[])
 
     if (verbose == 1)
     {
-        printf("Initializing mav-sim...\r\n");
-        printf("    verbose        = %d\r\n", verbose);
-        printf("    tcp_synch_flag = %d\r\n", tcp_synch_flag);
-        printf("    kp             = %f\r\n", kp);
-        printf("    ki             = %f\r\n", ki);
-        printf("    kd             = %f\r\n", kd);
-        printf("    vehicle speed  = %f\r\n", spd);
+        printf(" | Initializing mav-sim...\r\n");
+        printf(" |__ verbose        = %d\r\n", verbose);
+        printf(" |__ tcp_synch_flag = %d\r\n", tcp_synch_flag);
+        printf(" |__ kp             = %f\r\n", kp);
+        printf(" |__ ki             = %f\r\n", ki);
+        printf(" |__ kd             = %f\r\n", kd);
+        printf(" |__ vehicle speed  = %f\r\n", spd);
     }
     float t = 0.0;
     int count = 0;
@@ -120,6 +122,10 @@ int main(int argc, char *argv[])
 
     int status = SUCCESS;
 
+    if (verbose == 1)
+    {
+        printf(" | Initializing UAV...\r\n");
+    }
     state_t uav;
 
     uav.x = -10.0;
@@ -127,8 +133,22 @@ int main(int argc, char *argv[])
     uav.spd = spd;
     uav.psi = 0.25 * M_PI;
 
-    controller_init();
+    if (verbose == 1)
+    {
+        printf(" |__ Initializing controller ...\r\n");
+    }
+    controller_init(verbose);
+
+    if (verbose == 1)
+    {
+        printf(" |__ Initializing model ...\r\n");
+    }
     model_init(&uav);
+
+    if (verbose == 1)
+    {
+        printf(" | UAV initialized\r\n");
+    }
 
     int socket = ERROR;
 
@@ -142,6 +162,12 @@ int main(int argc, char *argv[])
             return ERROR;
         }
     }
+    
+    if (verbose == 1)
+    {
+        printf("Beginning main simulation loop... \r\n");
+    }
+
 
     /* Main loop */
     while (1)
@@ -166,10 +192,10 @@ int main(int argc, char *argv[])
                     break;
                 }
             };
-            // if (verbose == 1)
-            // {
-            //     printf("data = 0x%02x\r\n", data_new);
-            // }
+            if (verbose == 1)
+            {
+                printf("data = 0x%02x\r\n", data_new);
+            }
 
             interface_send_tcp_message(socket, 0x78, uav.x);
             interface_send_tcp_message(socket, 0x79, uav.y);
