@@ -25,7 +25,7 @@ COBJS = $(CSRCS:%.c=$(OBJ_DIR)/%.o)
 OBJS = $(COBJS)
 
 # Define the executable name
-EXEC = $(BIN_DIR)/mav-sim
+EXEC = $(BIN_DIR)/svs-sim
 
 # Rule to build the executable
 $(EXEC): $(OBJS)

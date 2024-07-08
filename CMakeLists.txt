@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.13.4)
-project(mav_sim VERSION 0.1.0 LANGUAGES C)
+project(svs_sim VERSION 0.1.0 LANGUAGES C)
 
 set(CMAKE_BUILD_TYPE Debug)
 
@@ -26,8 +26,8 @@ set(sources
 
 add_compile_options(-Wall -Wextra)
 
-add_executable(mav_sim main.c ${sources})
+add_executable(svs_sim main.c ${sources})
 add_executable(example_secondary secondary.c ${CMAKE_CURRENT_SOURCE_DIR}/modules/lin_alg/lin_alg.c)
 
-target_link_libraries(mav_sim m)
+target_link_libraries(svs_sim m)
 target_link_libraries(example_secondary m)

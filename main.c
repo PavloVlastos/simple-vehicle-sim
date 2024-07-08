@@ -103,7 +103,7 @@ int main(int argc, char *argv[])
 
     if (verbose == 1)
     {
-        printf(" | Initializing mav-sim...\r\n");
+        printf(" | Initializing svs-sim...\r\n");
         printf(" |__ verbose        = %d\r\n", verbose);
         printf(" |__ tcp_synch_flag = %d\r\n", tcp_synch_flag);
         printf(" |__ kp             = %f\r\n", kp);
@@ -218,7 +218,7 @@ int main(int argc, char *argv[])
 
         /* Print and/or save data */
         printf("[t=%03.3f]: count=%d, x=%03.3f, y=%03.3f, psi=%03.3f, u=%03.3f, twp_x=%03.3f, twp_y=%03.3f\r\n", 
-            count, t, uav.x, uav.y, uav.psi, rud_ang, target_wp[0],  target_wp[1]);
+            t, count, uav.x, uav.y, uav.psi, rud_ang, target_wp[0],  target_wp[1]);
 
         /* remove this eventually */
         if ((count >= max_step_num) && (max_step_num != 0))
