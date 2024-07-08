@@ -1,5 +1,5 @@
-# mav-sim
-This repo holds a small example cmake project that simulates a simple miniature air vehicle (MAV). It uses a simple model, controller, and python script to graph the simulation in real-time. This project is meant as an example project to run tools like IKOS wit (https://github.com/NASA-SW-VnV/ikos). 
+# simple-vehicle-sim
+This repo holds a small example cmake project for a simple vehicle simulation (SVS). It uses a simple model, controller, and python script to graph the simulation in "real-time". This project is meant as an example project to run tools like IKOS wit (https://github.com/NASA-SW-VnV/ikos). 
 
 ## Steps
 Run the following commands to build mav-sim
