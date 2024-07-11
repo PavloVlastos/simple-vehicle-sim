@@ -6,8 +6,19 @@
 #include "interface.h"
 #include "model.h"
 #include "lin_alg.h"
+#include "plan.hpp"
 
+uint8_t packed_map[MAP_DFLT_NUM_BYTES_PER_MAP] = {0x00};
 
+/*
+ * Helper function protypes
+ */
+
+static long getFileSize(const char *filename);
+
+/*
+ *
+ */
 int main(int argc, char *argv[])
 {
 
@@ -20,6 +31,8 @@ int main(int argc, char *argv[])
     float ki = 0.0;
     float kd = 0.01;
     float spd = 5.0;
+
+    size_t n_bytes = 0;
 
     for (i = 0; i < argc; i++)
     {
@@ -83,6 +96,34 @@ int main(int argc, char *argv[])
                 spd = atof(argv[i]);
             }
         }
+        else if (strcmp(argv[i], "--map") == 0)
+        {
+            if (i + 1 < argc) /* Check for next arg*/
+            {
+                i++;
+                FILE *file_ptr;
+                const char *filename = argv[i];
+
+                // Open the binary file for reading
+                file_ptr = fopen(filename, "rb");
+                if (file_ptr == NULL)
+                {
+                    printf("ERROR: Error opening file:%s\r\n", filename);
+                    return ERROR;
+                }
+
+                n_bytes = getFileSize(filename);
+
+                if (n_bytes != MAP_DFLT_NUM_BYTES_PER_MAP)
+                {
+                    printf("ERROR: Incorrect file size:%s, expected %d, got %d\r\n",
+                           filename, n_bytes, MAP_DFLT_NUM_BYTES_PER_MAP);
+                    return ERROR;
+                }
+
+                n_bytes = fread(packed_map, sizeof(unsigned char), MAP_DFLT_NUM_BYTES_PER_MAP, file_ptr);
+            }
+        }
         else if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0)
         {
             printf("optional arguments:");
@@ -92,9 +133,12 @@ int main(int argc, char *argv[])
             printf("    --dt,                 Time step duration for simulation\r\n");
             printf("    --kp,                 Proportional gain for controller\r\n");
             printf("    --speed,              Vehicle speed, constant (m/s)\r\n");
-        } else {
+        }
+        else
+        {
             printf("Invalid argument(s)! try -h or --help to see valid arguments");
         }
+
         if (verbose == 1)
         {
             printf("Argument: %d: %s\r\n", i, argv[i]);
@@ -162,12 +206,11 @@ int main(int argc, char *argv[])
             return ERROR;
         }
     }
-    
+
     if (verbose == 1)
     {
         printf("Beginning main simulation loop... \r\n");
     }
-
 
     /* Main loop */
     while (1)
@@ -217,8 +260,8 @@ int main(int argc, char *argv[])
         t += dt;
 
         /* Print and/or save data */
-        printf("[t=%03.3f]: count=%d, x=%03.3f, y=%03.3f, psi=%03.3f, u=%03.3f, twp_x=%03.3f, twp_y=%03.3f\r\n", 
-            t, count, uav.x, uav.y, uav.psi, rud_ang, target_wp[0],  target_wp[1]);
+        printf("[t=%03.3f]: count=%d, x=%03.3f, y=%03.3f, psi=%03.3f, u=%03.3f, twp_x=%03.3f, twp_y=%03.3f\r\n",
+               t, count, uav.x, uav.y, uav.psi, rud_ang, target_wp[0], target_wp[1]);
 
         /* remove this eventually */
         if ((count >= max_step_num) && (max_step_num != 0))
@@ -237,4 +280,51 @@ int main(int argc, char *argv[])
     }
 
     return ERROR;
+}
+
+/*
+ * Helper function implementations
+ */
+
+/*
+ * This function was written by ChatGPT 4o
+ */
+static long getFileSize(const char *filename)
+{
+    FILE *filePtr;
+    long fileSize;
+
+    // Open the file in binary mode
+    filePtr = fopen(filename, "rb");
+    if (filePtr == NULL)
+    {
+        perror("Error opening file");
+        return -1;
+    }
+
+    // Move the file pointer to the end of the file
+    if (fseek(filePtr, 0, SEEK_END) != 0)
+    {
+        perror("Error seeking to end of file");
+        fclose(filePtr);
+        return -1;
+    }
+
+    // Get the current position of the file pointer (file size)
+    fileSize = ftell(filePtr);
+    if (fileSize == -1)
+    {
+        perror("Error getting file size");
+        fclose(filePtr);
+        return -1;
+    }
+
+    // Close the file
+    if (fclose(filePtr) != 0)
+    {
+        perror("Error closing file");
+        return -1;
+    }
+
+    return fileSize;
 }
