@@ -40,9 +40,9 @@ int plan_apply_a_star_search(node &start, node &target, float h)
     return status;
 }
 
-float plan_heuristic(node &a, node &b) {
-    return sqrt(a->get_)
-}
+// float plan_heuristic(node &a, node &b) {
+//     return sqrt(a->get_)
+// }
 
 int plan_update(float pose[DIM3], float target_wp_out[DIM2]);
 

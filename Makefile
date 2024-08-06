@@ -4,7 +4,7 @@ CC = gcc
 # Define the compilation flags
 CFLAGS = -std=c11 -O2 -Wall -I./modules -I./modules/common \
 	-I./modules/interface -I./modules/lin_alg -I./modules/model \
-	-I./modules/controller
+	-I./modules/controller -I./modules/plan
 
 # Define the linker flags
 LDFLAGS = -L/opt/rh/gcc-toolset-10/root/usr/lib/gcc/x86_64-redhat-linux/10 -lm

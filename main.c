@@ -6,9 +6,7 @@
 #include "interface.h"
 #include "model.h"
 #include "lin_alg.h"
-#include "plan.hpp"
 
-uint8_t packed_map[MAP_DFLT_NUM_BYTES_PER_MAP] = {0x00};
 
 /*
  * Helper function protypes
@@ -34,7 +32,7 @@ int main(int argc, char *argv[])
 
     size_t n_bytes = 0;
 
-    for (i = 0; i < argc; i++)
+    for (i = 1; i < argc; i++)
     {
 
         if (strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--verbose") == 0)
@@ -96,47 +94,51 @@ int main(int argc, char *argv[])
                 spd = atof(argv[i]);
             }
         }
-        else if (strcmp(argv[i], "--map") == 0)
-        {
-            if (i + 1 < argc) /* Check for next arg*/
-            {
-                i++;
-                FILE *file_ptr;
-                const char *filename = argv[i];
+        // else if (strcmp(argv[i], "--map") == 0)
+        // {
+        //     if (i + 1 < argc) /* Check for next arg*/
+        //     {
+        //         i++;
+        //         FILE *file_ptr;
+        //         const char *filename = argv[i];
 
-                // Open the binary file for reading
-                file_ptr = fopen(filename, "rb");
-                if (file_ptr == NULL)
-                {
-                    printf("ERROR: Error opening file:%s\r\n", filename);
-                    return ERROR;
-                }
+        //         // Open the binary file for reading
+        //         file_ptr = fopen(filename, "rb");
+        //         if (file_ptr == NULL)
+        //         {
+        //             printf("ERROR: Error opening file:%s\r\n", filename);
+        //             return ERROR;
+        //         }
 
-                n_bytes = getFileSize(filename);
+        //         n_bytes = getFileSize(filename);
 
-                if (n_bytes != MAP_DFLT_NUM_BYTES_PER_MAP)
-                {
-                    printf("ERROR: Incorrect file size:%s, expected %d, got %d\r\n",
-                           filename, n_bytes, MAP_DFLT_NUM_BYTES_PER_MAP);
-                    return ERROR;
-                }
+        //         if (n_bytes != MAP_DFLT_NUM_BYTES_PER_MAP)
+        //         {
+        //             printf("ERROR: Incorrect file size:%s, expected %d, got %d\r\n",
+        //                    filename, n_bytes, MAP_DFLT_NUM_BYTES_PER_MAP);
+        //             return ERROR;
+        //         }
 
-                n_bytes = fread(packed_map, sizeof(unsigned char), MAP_DFLT_NUM_BYTES_PER_MAP, file_ptr);
-            }
-        }
+        //         n_bytes = fread(packed_map, sizeof(unsigned char), MAP_DFLT_NUM_BYTES_PER_MAP, file_ptr);
+        //     }
+        // }
         else if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0)
         {
-            printf("optional arguments:");
+            printf("optional arguments:\r\n");
             printf("    -h, --help\r\n");
             printf("    -m, --max-steps       Max number of steps for simulation (0 means no limit)\r\n");
             printf("    -t, --tcp-synch-flag, For use with python visualize_sim.py\r\n");
             printf("    --dt,                 Time step duration for simulation\r\n");
             printf("    --kp,                 Proportional gain for controller\r\n");
             printf("    --speed,              Vehicle speed, constant (m/s)\r\n");
+
+            return SUCCESS;
         }
         else
         {
             printf("Invalid argument(s)! try -h or --help to see valid arguments");
+
+            return ERROR;
         }
 
         if (verbose == 1)
@@ -161,8 +163,8 @@ int main(int argc, char *argv[])
     float rud_ang = 0.0;
     float target_wp[DIM2];
 
-    uint8_t data_new;
-    uint8_t data_old;
+    uint8_t data_new = 0;
+    uint8_t data_old = 0;
 
     int status = SUCCESS;
 
