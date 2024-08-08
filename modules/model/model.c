@@ -1,5 +1,6 @@
 
 #include "model.h"
+#include <math.h>
 
 static state_t int_st; /* Internal state */
 

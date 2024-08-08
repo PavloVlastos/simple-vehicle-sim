@@ -15,22 +15,16 @@ OBJ_DIR = obj
 BIN_DIR = bin
 
 # Define the main file and the executable name
-MAIN_FILE_NAME = svs_sim_main
+MAIN_FILE_NAME = UT_model
 EXEC = $(BIN_DIR)/$(MAIN_FILE_NAME)
 
 # Define the source files
-CSRCS = $(SRC_DIR)/controller/controller.c \
-	$(SRC_DIR)/model/model.c \
-	$(SRC_DIR)/interface/interface.c \
-	$(SRC_DIR)/lin_alg/lin_alg.c \
+CSRCS = $(SRC_DIR)/model/model.c \
 	$(SRC_DIR)/common/common.c
 
 # Define the object files
-OBJS =  $(OBJ_DIR)/$(MAIN_FILE_NAME).o \
-	$(OBJ_DIR)/controller.o \
+OBJS = $(OBJ_DIR)/UT_model.o \
 	$(OBJ_DIR)/model.o \
-	$(OBJ_DIR)/interface.o \
-	$(OBJ_DIR)/lin_alg.o \
 	$(OBJ_DIR)/common.o
 
 # Rule to build the main executable
@@ -40,7 +34,7 @@ $(EXEC): $(OBJS)
 	$(CC) $(OBJS) $(LDFLAGS) -o $@
 
 # Rule to build main object file
-$(OBJ_DIR)/$(MAIN_FILE_NAME).o: ../$(MAIN_FILE_NAME).c
+$(OBJ_DIR)/UT_model.o: $(MAIN_FILE_NAME).c
 	@echo "Compiling $< to $@"
 	@mkdir -p $(OBJ_DIR)
 	$(CC) $(CFLAGS) -c -o $@ $<

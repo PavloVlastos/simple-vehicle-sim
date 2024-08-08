@@ -3,7 +3,6 @@
 
 #include "common.h"
 #include "lin_alg.h"
-#include <math.h>
 
 #define STATE_LEN DIM5
 
