@@ -175,14 +175,14 @@ int main(int argc, char *argv[])
 
     if (verbose == 1)
     {
-        printf(" | Initializing UAV...\r\n");
+        printf(" | Initializing SVS...\r\n");
     }
-    state_t uav;
+    state_t svs;
 
-    uav.x = -10.0;
-    uav.y = -10.0;
-    uav.spd = spd;
-    uav.psi = 0.25 * M_PI;
+    svs.x = -10.0;
+    svs.y = -10.0;
+    svs.spd = spd;
+    svs.psi = 0.25 * M_PI;
 
     if (verbose == 1)
     {
@@ -194,11 +194,11 @@ int main(int argc, char *argv[])
     {
         printf(" |__ Initializing model ...\r\n");
     }
-    model_init(&uav);
+    model_init(&svs);
 
     if (verbose == 1)
     {
-        printf(" | UAV initialized\r\n");
+        printf(" | SVS initialized\r\n");
     }
 
     int socket = ERROR;
@@ -247,20 +247,20 @@ int main(int argc, char *argv[])
                 printf("data = 0x%02x\r\n", data_new);
             }
 
-            interface_send_tcp_message(socket, 0x78, uav.x);
-            interface_send_tcp_message(socket, 0x79, uav.y);
-            interface_send_tcp_message(socket, 0x7A, uav.psi);
+            interface_send_tcp_message(socket, 0x78, svs.x);
+            interface_send_tcp_message(socket, 0x79, svs.y);
+            interface_send_tcp_message(socket, 0x7A, svs.psi);
 
             data_old = data_new;
         }
 
         /* Controller logic here */
-        update_waypoint(uav.x, uav.y);
+        update_waypoint(svs.x, svs.y);
         get_next_waypoint(target_wp);
-        rud_ang = controller_update(uav.x, uav.y, uav.psi, target_wp, kp);
+        rud_ang = controller_update(svs.x, svs.y, svs.psi, target_wp, kp);
 
         model_update(dt, rud_ang, 0.0, 0.0);
-        model_get_state(&uav);
+        model_get_state(&svs);
 
         count++;
 
@@ -268,7 +268,7 @@ int main(int argc, char *argv[])
 
         /* Print and/or save data */
         printf("[t=%03.3f]: count=%d, x=%03.3f, y=%03.3f, psi=%03.3f, u=%03.3f, twp_x=%03.3f, twp_y=%03.3f\r\n",
-               t, count, uav.x, uav.y, uav.psi, rud_ang, target_wp[0], target_wp[1]);
+               t, count, svs.x, svs.y, svs.psi, rud_ang, target_wp[0], target_wp[1]);
 
         if (count >= max_step_num)
         {
