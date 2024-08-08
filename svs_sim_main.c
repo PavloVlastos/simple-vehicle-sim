@@ -12,7 +12,7 @@
  * Helper function protypes
  */
 
-static long getFileSize(const char *filename);
+// static long getFileSize(const char *filename);
 
 /*
  *
@@ -23,14 +23,14 @@ int main(int argc, char *argv[])
     int i = 0;
     uint8_t verbose = 0;
     uint8_t tcp_synch_flag = 0;
-    int max_step_num = 0; /* Zero indicates no limit */
+    int max_step_num = 1; 
     float dt = 0.01;
     float kp = 1.0;
     float ki = 0.0;
     float kd = 0.01;
     float spd = 5.0;
 
-    size_t n_bytes = 0;
+    // size_t n_bytes = 0;
 
     for (i = 1; i < argc; i++)
     {
@@ -83,6 +83,11 @@ int main(int argc, char *argv[])
             {
                 i++;
                 max_step_num = atoi(argv[i]);
+
+                if (max_step_num <= 0) {
+                    printf("Error: maximum step number cannot less than or equal to zero!\r\n");
+                    return ERROR;
+                }
             }
         }
 
@@ -265,8 +270,7 @@ int main(int argc, char *argv[])
         printf("[t=%03.3f]: count=%d, x=%03.3f, y=%03.3f, psi=%03.3f, u=%03.3f, twp_x=%03.3f, twp_y=%03.3f\r\n",
                t, count, uav.x, uav.y, uav.psi, rud_ang, target_wp[0], target_wp[1]);
 
-        /* remove this eventually */
-        if ((count >= max_step_num) && (max_step_num != 0))
+        if (count >= max_step_num)
         {
             if (verbose == 1)
             {
@@ -291,42 +295,42 @@ int main(int argc, char *argv[])
 /*
  * This function was written by ChatGPT 4o
  */
-static long getFileSize(const char *filename)
-{
-    FILE *filePtr;
-    long fileSize;
+// static long getFileSize(const char *filename)
+// {
+//     FILE *filePtr;
+//     long fileSize;
 
-    // Open the file in binary mode
-    filePtr = fopen(filename, "rb");
-    if (filePtr == NULL)
-    {
-        perror("Error opening file");
-        return -1;
-    }
+//     // Open the file in binary mode
+//     filePtr = fopen(filename, "rb");
+//     if (filePtr == NULL)
+//     {
+//         perror("Error opening file");
+//         return -1;
+//     }
 
-    // Move the file pointer to the end of the file
-    if (fseek(filePtr, 0, SEEK_END) != 0)
-    {
-        perror("Error seeking to end of file");
-        fclose(filePtr);
-        return -1;
-    }
+//     // Move the file pointer to the end of the file
+//     if (fseek(filePtr, 0, SEEK_END) != 0)
+//     {
+//         perror("Error seeking to end of file");
+//         fclose(filePtr);
+//         return -1;
+//     }
 
-    // Get the current position of the file pointer (file size)
-    fileSize = ftell(filePtr);
-    if (fileSize == -1)
-    {
-        perror("Error getting file size");
-        fclose(filePtr);
-        return -1;
-    }
+//     // Get the current position of the file pointer (file size)
+//     fileSize = ftell(filePtr);
+//     if (fileSize == -1)
+//     {
+//         perror("Error getting file size");
+//         fclose(filePtr);
+//         return -1;
+//     }
 
-    // Close the file
-    if (fclose(filePtr) != 0)
-    {
-        perror("Error closing file");
-        return -1;
-    }
+//     // Close the file
+//     if (fclose(filePtr) != 0)
+//     {
+//         perror("Error closing file");
+//         return -1;
+//     }
 
-    return fileSize;
-}
+//     return fileSize;
+// }
