@@ -97,5 +97,5 @@ float controller_update(float x, float y, float psi, float wp[DIM2], float kp)
         angle_rudder = MIN_RUD_ANGLE;
     }
 
-    return -angle_rudder;
+    return (-1.0)*angle_rudder;
 }
