@@ -12,7 +12,6 @@
  * Helper function protypes
  */
 
-// static long getFileSize(const char *filename);
 
 /*
  *
@@ -291,46 +290,3 @@ int main(int argc, char *argv[])
 /*
  * Helper function implementations
  */
-
-/*
- * This function was written by ChatGPT 4o
- */
-// static long getFileSize(const char *filename)
-// {
-//     FILE *filePtr;
-//     long fileSize;
-
-//     // Open the file in binary mode
-//     filePtr = fopen(filename, "rb");
-//     if (filePtr == NULL)
-//     {
-//         perror("Error opening file");
-//         return -1;
-//     }
-
-//     // Move the file pointer to the end of the file
-//     if (fseek(filePtr, 0, SEEK_END) != 0)
-//     {
-//         perror("Error seeking to end of file");
-//         fclose(filePtr);
-//         return -1;
-//     }
-
-//     // Get the current position of the file pointer (file size)
-//     fileSize = ftell(filePtr);
-//     if (fileSize == -1)
-//     {
-//         perror("Error getting file size");
-//         fclose(filePtr);
-//         return -1;
-//     }
-
-//     // Close the file
-//     if (fclose(filePtr) != 0)
-//     {
-//         perror("Error closing file");
-//         return -1;
-//     }
-
-//     return fileSize;
-// }

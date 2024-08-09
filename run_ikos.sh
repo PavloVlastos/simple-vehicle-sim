@@ -8,10 +8,10 @@ ikos -I modules/common/ \
     -I modules/interface \
     -I modules/model \
     -I modules/plan \
-    main.c -o ikos_generated/main.db
+    svs_sim_main.c -o ikos_generated/svs_sim_main.db
     # -a=boa,dbz,nullity,prover,upa,uva,sio,uio,shc,poa,pcmp,sound,fca,dca,dfa,dbg,watch\
 
 ikos -I modules/common/ \
      -I modules/lin_alg \
      --entry-points=main,sum_vec\
-    secondary.c -o ikos_generated/secondary.db
+    UT_lin_alg/UT_lin_alg.c -o ikos_generated/UT_lin_alg.db
