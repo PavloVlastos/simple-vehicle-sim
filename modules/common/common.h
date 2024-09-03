@@ -3,6 +3,8 @@
 
 #define ERROR -1
 #define SUCCESS 0
+#define IS_BLOCKED 1
+#define IS_NOT_BLOCKED 0
 
 #define DIM2 2
 #define DIM3 3
@@ -10,8 +12,9 @@
 #define DIM5 5
 #define DIM6 6
 
-#define BASE_LENGTH (float)1.0                    /* vehicle base length in meters */
-#define MIN_RUD_ANGLE (float)(-0.2 * M_PI) /* minimum rudder angle in radians */
-#define MAX_RUD_ANGLE (float)(0.2 * M_PI)  /* maximum rudder angle in radians */
+#define BASE_LENGTH (float)1.0           /* vehicle base length in meters */
+#define MIN_RUD_ANG (float)(-0.2 * M_PI) /* minimum rudder angle in radians */
+#define MAX_RUD_ANG (float)(0.2 * M_PI)  /* maximum rudder angle in radians  */
+#define MAX_ABS_SPD (float)(7.0)         /* maximum vehicle speed in m/s */
 
 #endif /* COMMON_H */

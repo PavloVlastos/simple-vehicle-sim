@@ -21,7 +21,6 @@
 #define PLAN_SUCCESS 0
 #define PLAN_FAILURE -1
 
-#define WP_THRESH 1.0
 #define MAX_NUM_WP 10
 
 /* TODO: Get rid of this eventually */
@@ -67,6 +66,14 @@ typedef struct
 } PLAN_payload_t;
 
 
+enum planner_e {
+    P_STATIC = 0,
+    P_MYOPIC,
+    P_CUSTOM
+};
+
+typedef planner_e planner_t;
+
 /*
  * Function prototypes
  */
@@ -74,12 +81,12 @@ typedef struct
 /*
  *
  */
-int plan_init(int verbose);
+int planner_init(int verbose)
 
 /*
  *
  */
-int plan_update(float pose[DIM3], float target_wp_out[DIM2]);
+int planner_update(float pose[DIM3], float target_wp_out[DIM2]);
 
 /*
  *
@@ -89,7 +96,7 @@ int plan_plan(float pose[DIM3], float target_wp[DIM2], SLAM_OccupancyMap_Payload
 /*
  *
  */
-int plan_unpack_map(SLAM_OccupancyMap_Payload_t map);
+int planner_unpack_map(SLAM_OccupancyMap_Payload_t map);
 
 /*
  *

@@ -1,23 +1,77 @@
 #ifndef CONTROLLER_H
 #define CONTROLLER_H
 
+#include <math.h>
 #include <stdio.h>
 #include <string.h>
-#include <math.h>
 
 #include "common.h"
 #include "lin_alg.h"
 
-#define WP_THRESH 1.0
+/*
+ * #defines
+ */
+#define WP_EXIT_THRESH 0.7
+#define WP_ENTR_THRESH 0.35
 
+#define VEHICLE_IN_PROX 1
+#define VEHICLE_OUT_PROX 0
+
+/*
+ * Module datatypes
+ */
+enum controller_states_e {
+    CS_STAYING_STILL = 0,
+    CS_MOVING_FORWARD,
+    CS_MOVING_BACKWARD
+}
+
+typedef controller_states_e controller_state_t;
+
+/*
+ * Function prototypes
+ */
+
+/**
+ * @param[in] verbose A print flag to help with debugging
+ * @return 0 for success, or -1 for error
+ */
 int controller_init(int verbose);
 
-int update_waypoint(float x, float y);
+/**
+ * @param[in] vehicle_position The vehicle position [x, y]
+ * @return 0 for success, or -1 for error
+ */
+int controller_get_vehicle_prox(vehicle_position[DIM2]);
 
-int get_next_waypoint(float wp_out[DIM2]);
+/**
+ * @param[out] wp_out
+ * @return 0 for success, or -1 for error
+ */
+int controller_get_target_waypoint(float wp_out[DIM2]);
 
-float confine_angle(float a);
+/**
+ * @param[in] kp The desired proportional gain of the steering controller
+ * @param[in] psi Heading angle of vehicle in radians
+ * @param[in] vehicle_position The vehicle position in meters
+ * @param[in] target_waypoint The target waypoint in meters
+ * @param[out] output The controller output. The first element is steering [-1,
+ * 1] and the second element is throttle 
+ * @return 0 for success, or -1 for error
+ */
+int controller_update(float kp, float psi, float vehicle_position[DIM2],
+                      float target_waypoint[DIM2], float output[DIM2]);
 
-float controller_update(float x, float y, float psi, float wp[DIM2], float kp);
+/**
+ * @param[in] x Vehicle position in x-axis
+ * @param[in] x_ref Waypoint x coordinate
+ * @param[in] y Vehicle position in y-axis
+ * @param[in] y_ref Waypoint y coordinate
+ * @param[in] psi Vehicle heading angle
+ * @param[in] kp Steering controller proportional gain
+ * @return Steering controller output 
+ */
+float controller_step_steering(float x, float x_ref, float y, float y_ref,
+                               float psi, float kp);
 
-#endif /* CONTROLLER_H */ 
+#endif /* CONTROLLER_H */
