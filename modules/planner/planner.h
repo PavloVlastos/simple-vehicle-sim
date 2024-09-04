@@ -14,6 +14,7 @@
 #include <math.h>
 
 #include "common.h"
+#include "map.h"
 
 /*
 * Defines
@@ -40,19 +41,19 @@
 #define MAP_PACKED_SIZE MAP_DFLT_NUM_BYTES_PER_MAP
 
 /* Waypoint */
-union
-{
-    float x;
-    float y;
-    uint8_t wp_array[WP_2D * sizeof(float)];
-} waypoint;
+// union
+// {
+//     float x;
+//     float y;
+//     uint8_t wp_array[WP_2D * sizeof(float)];
+// } waypoint;
 
 /* TODO: Get rid of this eventually */
 typedef struct
 {
     uint16_t nrow;
     uint16_t ncol;
-    uint8_t resolution;
+    uint8_t divisionsPerCell;
     int8_t minXRealWorldValue;
     int8_t minYRealWorldValue;
     int8_t maxXRealWorldValue;
@@ -72,35 +73,16 @@ enum planner_e {
     P_CUSTOM
 };
 
-typedef planner_e planner_t;
+typedef enum planner_e planner_t;
 
 /*
  * Function prototypes
  */
 
-/*
- *
- */
-int planner_init(int verbose)
 
-/*
- *
- */
-int planner_update(float pose[DIM3], float target_wp_out[DIM2]);
+int planner_init(int verbose, planner_t p);
 
-/*
- *
- */
-int plan_plan(float pose[DIM3], float target_wp[DIM2], SLAM_OccupancyMap_Payload_t map, PLAN_payload_t *path_out);
+int planner_custom(map_t map);
 
-/*
- *
- */
-int planner_unpack_map(SLAM_OccupancyMap_Payload_t map);
-
-/*
- *
- */
-int plan_search(void);
 
 #endif /* PLAN_H */

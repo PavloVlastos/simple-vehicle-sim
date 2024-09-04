@@ -48,14 +48,15 @@ int planner_init(int verbose, planner_t p) {
     return status;
 }
 
-int planner_custom(SLAM_OccupancyMap_Payload_t map) {
+int planner_custom(map_t map) {
     int i = 0;
     int j = 0;
 
-    for (j = 0; j < MAP_DFLT_Y_LEN; j++) {
-        for (i = 0; i < MAP_DFLT_X_LEN; i++) {
-        }
-    }
+    // for (j = 0; j < MAP_DFLT_Y_LEN; j++) {
+    //     for (i = 0; i < MAP_DFLT_X_LEN; i++) {
+    //     }
+    // }
+    return SUCCESS;
 }
 
 /*
@@ -81,6 +82,7 @@ int set_plan_type(planner_t p) {
 
     return status;
 }
+
 const char *get_plan_type_str(planner_t planner) {
     switch (planner) {
     case P_STATIC:
