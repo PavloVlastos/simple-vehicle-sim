@@ -6,7 +6,6 @@
  * Includes
  */
 #include "planner.h"
-#include "common.h"
 
 /*
  * Defines
@@ -25,7 +24,7 @@ static uint8_t packed_map[MAP_DFLT_NUM_BYTES_PER_MAP]; /* Internal occupancy map
  * Private helper function prototypes
  */
 
-int check_plan_type(planner_t p);
+int set_plan_type(planner_t p);
 const char *get_plan_type_str(planner_t p);
 
 /*
@@ -48,7 +47,7 @@ int planner_init(int verbose, planner_t p) {
     return status;
 }
 
-int planner_custom(map_t map) {
+int planner_custom(map_t map, test_t t) {
     int i = 0;
     int j = 0;
 

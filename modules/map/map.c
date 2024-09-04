@@ -23,7 +23,7 @@ map_t map_i;
 uint8_t bit_get(uint8_t b, uint8_t shift);
 
 /**
- * @param[out] *b A pointer to a byte
+ * @param[out] b A pointer to a byte
  * @param[in] shift The number of times to shift a bit within the interval of
  * [1, 8]
  * @param[in] value The value to set, either 0 or 1
@@ -55,7 +55,7 @@ int map_init(float x_min, float x_max, float y_min, float y_max,
     map_i.num_cells = (int)(map_i.x_len * map_i.y_len);
     map_i.num_bytes_per_cell = (1.0 / 8.0);
     map_i.num_bytes_per_map =
-        (map_i.num_cells * map_i.div_per_cell * map_i.num_bytes_per_cel);
+        (map_i.num_cells * map_i.div_per_cell * map_i.num_bytes_per_cell);
 
     return status;
 }
@@ -68,17 +68,18 @@ int map_load_packed_map_file(const char *file_path,
     /*
      * Read in packed-map file for tests
      */
+    FILE *file = fopen(file_path, "rb");
 
     if (file == NULL) {
         printf("Failed to open file\r\n");
         return ERROR;
     }
 
-    size_t n_bytes_read = fread(map 1, sizeof(map), file);
+    size_t n_bytes_read = fread(map, 1, sizeof(map), file);
 
     if (n_bytes_read != sizeof(map)) {
-        printf("map size = %d bytes, but number of bytes read = \r\n",
-               sizeof(map), n_bytes_read);
+        printf("map size = %lu bytes, but number of bytes read = %d\r\n",
+               sizeof(map), (int)n_bytes_read);
         fclose(file);
         return ERROR;
     }
@@ -88,8 +89,40 @@ int map_load_packed_map_file(const char *file_path,
     return SUCCESS;
 }
 
-int map_read_cell_in_packed_map(int i, int j,
-                                uint8_t map[MAP_DFLT_NUM_BYTES_PER_MAP]);
+int map_read_cell_in_packed_map(int *value, int i, int j,
+                                uint8_t map[MAP_DFLT_NUM_BYTES_PER_MAP]) {
+    int i_flat = 0;
+    int k = 0;
+    int h = 0;
+    uint8_t b = 0;
+    int observed_status = 0;
+    int occupied_status = 0;
+
+    i_flat = (i * map_i.x_len) + j;
+    h = (int)(floor((float)i_flat / 4.0));
+    k = (i_flat % 4) * 2;
+
+    b = map[h];
+
+    observed_status = bit_get(b, 8 - k);
+    occupied_status = bit_get(b, 8 - k - 1);
+    *value = 0;
+
+    if (observed_status == 0) {
+        *value = -1;
+
+    } else if ((observed_status == 1) && (occupied_status == 0)) {
+        *value = 0;
+
+    } else if ((observed_status == 1) && (occupied_status == 1)) {
+        *value = 1;
+
+    } else {
+        return ERROR;
+    }
+
+    return SUCCESS;
+}
 
 int map_write_cell_in_packed_map(int value, int i, int j,
                                  uint8_t map[MAP_DFLT_NUM_BYTES_PER_MAP]) {
@@ -100,7 +133,7 @@ int map_write_cell_in_packed_map(int value, int i, int j,
     uint8_t b = 0;
 
     i_flat = (i * map_i.x_len) + j;
-    h = (int)(floor(i_flat / 4));
+    h = (int)(floor((float)i_flat / 4.0));
     k = (i_flat % 4) * 2;
 
     if (value == -1) {
@@ -123,7 +156,7 @@ int map_write_cell_in_packed_map(int value, int i, int j,
             return status;
         }
 
-    } else if (value == 0) {
+    } else if (value == 1) {
         status = bit_set(&b, (8 - k), 1); /* Observed */
         if (status == ERROR) {
             return status;
@@ -148,7 +181,7 @@ uint8_t bit_get(uint8_t b, uint8_t shift) {
 }
 
 int bit_set(uint8_t *b, uint8_t shift, uint8_t value) {
-    if ((shift < 1) || (8 < shift) {
+    if ((shift < 1) || (8 < shift)) {
         return ERROR;
     }
 
@@ -167,5 +200,5 @@ int bit_set(uint8_t *b, uint8_t shift, uint8_t value) {
         return ERROR;
     }
 
-    return SUCCESS
+    return SUCCESS;
 }

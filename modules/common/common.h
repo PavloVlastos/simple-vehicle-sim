@@ -1,6 +1,18 @@
 #ifndef COMMON_H
 #define COMMON_H
 
+/*
+ * #includes
+ */
+
+#include <stdint.h>
+#include <math.h>
+#include <stdio.h>
+
+/*
+ * #defines
+ */
+
 #define ERROR -1
 #define SUCCESS 0
 #define IS_BLOCKED 1
@@ -16,5 +28,12 @@
 #define MIN_RUD_ANG (float)(-0.2 * M_PI) /* minimum rudder angle in radians */
 #define MAX_RUD_ANG (float)(0.2 * M_PI)  /* maximum rudder angle in radians  */
 #define MAX_ABS_SPD (float)(7.0)         /* maximum vehicle speed in m/s */
+
+/*
+ * Datatypes
+ */
+typedef struct {
+    int x;
+} test_t;
 
 #endif /* COMMON_H */
