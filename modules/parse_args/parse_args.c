@@ -3,7 +3,14 @@
 /*
  * Module-level variables
  */
-static int verbose = 0;
+static uint8_t verbose = 0;
+static uint8_t tcp_synch = 0;
+static int max_step_num = 0;
+static float speed = 5.0;
+static float kp = 1.0;
+static float ki = 0.0;
+static float kd = 0.01;
+static float dt = 0.01;
 
 /*
  * Function implmentations
@@ -16,7 +23,7 @@ int parse_args(int argc, char *argv[]) {
             verbose = 1;
         } else if (strcmp(argv[i], "-t") == 0 ||
                    strcmp(argv[i], "--tcp-synch-flag") == 0) {
-            tcp_synch_flag = 1;
+            tcp_synch = 1;
         } else if (strcmp(argv[i], "--dt") == 0) {
             if (i + 1 < argc) /* Check for next arg*/
             {
@@ -60,7 +67,7 @@ int parse_args(int argc, char *argv[]) {
             if (i + 1 < argc) /* Check for next arg*/
             {
                 i++;
-                spd = atof(argv[i]);
+                speed = atof(argv[i]);
             }
         }
         // else if (strcmp(argv[i], "--map") == 0)
@@ -96,16 +103,20 @@ int parse_args(int argc, char *argv[]) {
         else if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0) {
             printf("optional arguments:\r\n");
             printf("    -h, --help\r\n");
-            printf("    -m, --max-steps       Max number of steps for "
+            printf("    -v, --verbose\r\n");
+            printf("    -m, --max-steps    Max number of steps for "
                    "simulation (0 means no limit)\r\n");
             printf("    -t, --tcp-synch-flag, For use with python "
                    "visualize_sim.py\r\n");
-            printf("    --dt,                 Time step duration for "
+            printf("    --dt,              Time step duration for "
                    "simulation\r\n");
-            printf("    --kp,                 Proportional gain for "
+            printf("    --kp,              Proportional gain for "
                    "controller\r\n");
-            printf(
-                "    --speed,              Vehicle speed, constant (m/s)\r\n");
+            printf("    --ki,              Integral gain for "
+                   "controller\r\n");
+            printf("    --kd,              Derivative gain for "
+                   "controller\r\n");
+            printf("    --speed,           Vehicle speed, constant (m/s)\r\n");
 
             return SUCCESS;
         } else {
@@ -119,6 +130,15 @@ int parse_args(int argc, char *argv[]) {
             printf("Argument: %d: %s\r\n", i, argv[i]);
         }
     }
+    
+    return SUCCESS;
 }
 
-int parse_args_is_verbose() { return verbose; }
+uint8_t parse_args_is_verbose() { return verbose; }
+uint8_t parse_args_is_tcp_synch() { return tcp_synch; }
+int parse_args_get_max_step_num() { return max_step_num; }
+float parse_args_get_speed() { return speed; }
+float parse_args_get_kp() { return kp; }
+float parse_args_get_ki() { return ki; }
+float parse_args_get_kd() { return kd; }
+float parse_args_get_dt() { return dt; }

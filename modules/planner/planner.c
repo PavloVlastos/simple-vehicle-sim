@@ -25,7 +25,7 @@ static uint8_t packed_map[MAP_DFLT_NUM_BYTES_PER_MAP]; /* Internal occupancy map
  */
 
 int set_plan_type(planner_t p);
-const char *get_plan_type_str(planner_t p);
+float gen_rand_float(float min, float max);
 
 /*
  * Function implementations
@@ -34,6 +34,8 @@ const char *get_plan_type_str(planner_t p);
 int planner_init(int verbose, planner_t p) {
     int status = ERROR;
 
+    srand(42);
+
     if (verbose == 1) {
         printf(" |____ initializing planner\r\n");
     }
@@ -41,15 +43,47 @@ int planner_init(int verbose, planner_t p) {
         status = SUCCESS;
     }
     if ((verbose == 1) && (status == SUCCESS)) {
-        printf(" |________ planner type: %d, %s", p, get_plan_type_str(p));
+        printf(" |________ planner type: %d, %s\r\n", p, planner_get_plan_str());
     }
 
     return status;
 }
 
-int planner_custom(map_t map, test_t t) {
-    int i = 0;
-    int j = 0;
+int planner_plan(planner_t p, const map_t *map, float new_wp[DIM2]) {
+    int status = ERROR;
+
+    switch (p) {
+    case P_STATIC:
+        status = SUCCESS;
+        break;
+
+    case P_MYOPIC:
+        status = planner_myopic(map, new_wp);
+        break;
+
+    case P_CUSTOM:
+        status = SUCCESS;
+        break;
+
+    default:
+        status = ERROR;
+        break;
+    }
+
+    return status;
+}
+
+int planner_myopic(const map_t *map, float new_wp[DIM2]) {
+
+    new_wp[0] = gen_rand_float(map->x_min, map->x_max);
+    new_wp[1] = gen_rand_float(map->y_min, map->y_max);
+
+    return SUCCESS;
+}
+
+int planner_custom(const map_t *map, float new_wp[DIM2]) {
+    // int i = 0;
+    // int j = 0;
 
     // for (j = 0; j < MAP_DFLT_Y_LEN; j++) {
     //     for (i = 0; i < MAP_DFLT_X_LEN; i++) {
@@ -58,21 +92,43 @@ int planner_custom(map_t map, test_t t) {
     return SUCCESS;
 }
 
+const char *planner_get_plan_str(void) {
+    switch (planner) {
+    case P_STATIC:
+        return "P_STATIC";
+        break;
+    case P_MYOPIC:
+        return "P_MYOPIC";
+        break;
+    case P_CUSTOM:
+        return "P_CUSTOM";
+        break;
+    default:
+        return "ERROR";
+        break;
+    }
+}
+
 /*
  * Private helper function implementations
  */
+
 int set_plan_type(planner_t p) {
     int status = ERROR;
 
     switch (p) {
     case P_STATIC:
         status = SUCCESS;
+        break;
     case P_MYOPIC:
         status = SUCCESS;
+        break;
     case P_CUSTOM:
         status = SUCCESS;
+        break;
     default:
         status = ERROR;
+        break;
     }
 
     if (status == SUCCESS) {
@@ -82,15 +138,6 @@ int set_plan_type(planner_t p) {
     return status;
 }
 
-const char *get_plan_type_str(planner_t planner) {
-    switch (planner) {
-    case P_STATIC:
-        return "P_STATIC";
-    case P_MYOPIC:
-        return "P_MYOPIC";
-    case P_CUSTOM:
-        return "P_CUSTOM";
-    default:
-        return "ERROR";
-    }
+float gen_rand_float(float min, float max) {
+    return (max - min) * ((float)rand() / RAND_MAX) + min;
 }

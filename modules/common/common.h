@@ -5,9 +5,11 @@
  * #includes
  */
 
-#include <stdint.h>
-#include <math.h>
-#include <stdio.h>
+#include <math.h>   /* For tanf(), sinf(), cosf(), etc. */
+#include <stdint.h> /* Using for uint8_t and similar */
+#include <stdio.h>  /* For printf() and similar*/
+#include <stdlib.h> /* Using for atoi() and atof() */
+#include <string.h> /* Using for strncmp */
 
 /*
  * #defines
@@ -35,5 +37,9 @@
 typedef struct {
     int x;
 } test_t;
+
+/*
+ *
+ */
 
 #endif /* COMMON_H */

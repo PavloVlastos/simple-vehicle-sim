@@ -10,7 +10,7 @@
 /*
  * Private module-level variables
  */
-map_t map_i;
+static map_t map;
 
 /*
  * Private helper function prototypes
@@ -38,24 +38,24 @@ int map_init(float x_min, float x_max, float y_min, float y_max,
              float div_per_cell) {
     int status = SUCCESS;
 
-    map_i.x_min = x_min;
-    map_i.x_max = x_max;
-    map_i.y_min = y_min;
-    map_i.y_max = y_max;
-    map_i.div_per_cell = div_per_cell;
+    map.x_min = x_min;
+    map.x_max = x_max;
+    map.y_min = y_min;
+    map.y_max = y_max;
+    map.div_per_cell = div_per_cell;
 
     if (div_per_cell == 0.0) {
         return ERROR;
     }
-    map_i.resolution = 1.0 / div_per_cell;
+    map.resolution = 1.0 / div_per_cell;
 
-    map_i.x_len = (int)((x_max - x_min) * div_per_cell);
-    map_i.y_len = (int)((y_max - y_min) * div_per_cell);
+    map.x_len = (int)((x_max - x_min) * div_per_cell);
+    map.y_len = (int)((y_max - y_min) * div_per_cell);
 
-    map_i.num_cells = (int)(map_i.x_len * map_i.y_len);
-    map_i.num_bytes_per_cell = (1.0 / 8.0);
-    map_i.num_bytes_per_map =
-        (map_i.num_cells * map_i.div_per_cell * map_i.num_bytes_per_cell);
+    map.num_cells = (int)(map.x_len * map.y_len);
+    map.num_bytes_per_cell = (1.0 / 8.0);
+    map.num_bytes_per_map =
+        (map.num_cells * map.div_per_cell * map.num_bytes_per_cell);
 
     return status;
 }
@@ -90,7 +90,7 @@ int map_load_packed_map_file(const char *file_path,
 }
 
 int map_read_cell_in_packed_map(int *value, int i, int j,
-                                uint8_t map[MAP_DFLT_NUM_BYTES_PER_MAP]) {
+                                uint8_t map_bytes[MAP_DFLT_NUM_BYTES_PER_MAP]) {
     int i_flat = 0;
     int k = 0;
     int h = 0;
@@ -98,11 +98,11 @@ int map_read_cell_in_packed_map(int *value, int i, int j,
     int observed_status = 0;
     int occupied_status = 0;
 
-    i_flat = (i * map_i.x_len) + j;
+    i_flat = (i * map.x_len) + j;
     h = (int)(floor((float)i_flat / 4.0));
     k = (i_flat % 4) * 2;
 
-    b = map[h];
+    b = map_bytes[h];
 
     observed_status = bit_get(b, 8 - k);
     occupied_status = bit_get(b, 8 - k - 1);
@@ -124,15 +124,15 @@ int map_read_cell_in_packed_map(int *value, int i, int j,
     return SUCCESS;
 }
 
-int map_write_cell_in_packed_map(int value, int i, int j,
-                                 uint8_t map[MAP_DFLT_NUM_BYTES_PER_MAP]) {
+int map_write_cell_in_packed_map(
+    int value, int i, int j, uint8_t map_bytes[MAP_DFLT_NUM_BYTES_PER_MAP]) {
     int status = ERROR;
     int i_flat = 0;
     int k = 0;
     int h = 0;
     uint8_t b = 0;
 
-    i_flat = (i * map_i.x_len) + j;
+    i_flat = (i * map.x_len) + j;
     h = (int)(floor((float)i_flat / 4.0));
     k = (i_flat % 4) * 2;
 
@@ -167,10 +167,20 @@ int map_write_cell_in_packed_map(int value, int i, int j,
         }
     }
 
-    map[h] = b;
+    map_bytes[h] = b;
 
     return status;
 }
+
+const map_t *map_get_map(void) { return &map; }
+
+float map_get_x_min(void) { return map.x_min; }
+
+float map_get_x_max(void) { return map.x_max; }
+
+float map_get_y_min(void) { return map.y_min; }
+
+float map_get_y_max(void) { return map.y_max; }
 
 /*
  * Private helper function implementations

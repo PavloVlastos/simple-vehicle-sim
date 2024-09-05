@@ -25,10 +25,11 @@ int model_init(const state_t *state_in);
 /**
 * @param[in] dt The sample-time of the model
 * @param[in] rudder_angle The rudder angle of the model
+* @param[in] speed The speed of the model
 * @param[in] vx_dist The velocity disturbance in the x-axis
 * @param[in] vy_dist The velocity disturbance in the y-axis
  */
-int model_update(const float dt, float rudder_angle, float vx_dist,
+int model_update(const float dt, float rudder_angle, float speed, float vx_dist,
                  float vy_dist);
 
 int model_get_state(state_t *state_out);

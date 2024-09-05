@@ -81,14 +81,14 @@ int map_save_packed_map_file(const char *file_path,
                              uint8_t map[MAP_DFLT_NUM_BYTES_PER_MAP]);
 
 /**
- * @param[out] value A pointer to the value at map indices (i, j) 
+ * @param[out] value A pointer to the value at map indices (i, j)
  * @param[in] i
  * @param[in] j
  * @param[in] map The packed map
  * @return 0 for success, or -1 for error
  */
 int map_read_cell_in_packed_map(int *value, int i, int j,
-                                uint8_t map[MAP_DFLT_NUM_BYTES_PER_MAP]);
+                                uint8_t map_bytes[MAP_DFLT_NUM_BYTES_PER_MAP]);
 /**
  * @param[in] value The bit value (-1, 0, or 1) to write to the packed map
  * @param[in] i
@@ -96,7 +96,32 @@ int map_read_cell_in_packed_map(int *value, int i, int j,
  * @param[out] map The packed map
  * @return 0 for success, or -1 for error
  */
-int map_write_cell_in_packed_map(int value, int i, int j,
-                                 uint8_t map[MAP_DFLT_NUM_BYTES_PER_MAP]);
+int map_write_cell_in_packed_map(
+    int value, int i, int j, uint8_t map_bytes[MAP_DFLT_NUM_BYTES_PER_MAP]);
+
+/**
+ * @return Pointer to the internal map struct
+ */
+const map_t *map_get_map(void);
+
+/**
+ * @return x_min
+ */
+float map_get_x_min(void);
+
+/**
+ * @return x_max
+ */
+float map_get_x_max(void);
+
+/**
+ * @return y_min
+ */
+float map_get_y_min(void);
+
+/**
+ * @return y_max
+ */
+float map_get_y_max(void);
 
 #endif /* MAP_H */

@@ -24,7 +24,7 @@ int model_update(const float dt, float rudder_angle, float speed, float vx_dist,
         rudder_angle = MIN_RUD_ANG;
     }
 
-    if (BASE_LENGTH != 0.0) {
+    if ((BASE_LENGTH == 0.0) || (base_length == 0.0)) {
         base_length = BASE_LENGTH;
         printf("error in model_update(): BASE_LENGTH = 0.0\r\n");
         return ERROR;

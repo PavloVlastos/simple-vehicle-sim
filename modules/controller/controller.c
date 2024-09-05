@@ -3,7 +3,7 @@
 /*
  * Module-level variables
  */
-static controller_state_t controller_state = CS_STAYING_STILL;
+static controller_state_t controller_state = CS_WAITING_FOR_NEXT_WP;
 static float wp_target[DIM2] = {0.0};
 
 /*
@@ -40,7 +40,7 @@ int controller_init(int verbose) {
     return status;
 }
 
-int controller_get_vehicle_prox(vehicle_position[DIM2]) {
+int controller_get_vehicle_prox(float vehicle_position[DIM2]) {
     int is_near = VEHICLE_OUT_PROX;
     int i;
     float result[DIM2] = {0.0};
@@ -75,7 +75,6 @@ int controller_get_target_waypoint(float wp_out[DIM2]) {
 int controller_update(float kp, float psi, int blocked_status,
                       float vehicle_position[DIM2], float target_waypoint[DIM2],
                       float output[DIM2]) {
-    int status;
     float steering = 0.0;
     float throttle = 0.0;
     float x = 0.0;
@@ -90,16 +89,17 @@ int controller_update(float kp, float psi, int blocked_status,
      * State machine
      */
     switch (controller_state) {
-    case CS_STAYING_STILL:
+    case CS_WAITING_FOR_NEXT_WP:
         steering = 0.0;
         throttle = 0.0;
 
         /* Transition Conditions */
-        if (controller_get_vehicle_prox() == VEHICLE_IN_PROX) {
-            controller_state = CS_STAYING_STILL;
+        if (controller_get_vehicle_prox(vehicle_position) == VEHICLE_IN_PROX) {
+            controller_state = CS_WAITING_FOR_NEXT_WP;
         }
 
-        if ((controller_get_vehicle_prox() == VEHICLE_OUT_PROX) &&
+        if ((controller_get_vehicle_prox(vehicle_position) ==
+             VEHICLE_OUT_PROX) &&
             (blocked_status == IS_NOT_BLOCKED)) {
             controller_state = CS_MOVING_FORWARD;
         }
@@ -107,12 +107,12 @@ int controller_update(float kp, float psi, int blocked_status,
         break;
 
     case CS_MOVING_FORWARD:
-        steering = controller_step_steering(x, x_ref, y, y_ref, psi, kp);\
+        steering = controller_step_steering(x, x_ref, y, y_ref, psi, kp);
         throttle = 1.0;
 
         /* Transition Conditions */
-        if (controller_get_vehicle_prox() == VEHICLE_IN_PROX) {
-            controller_state = CS_STAYING_STILL;
+        if (controller_get_vehicle_prox(vehicle_position) == VEHICLE_IN_PROX) {
+            controller_state = CS_WAITING_FOR_NEXT_WP;
         }
 
         if (blocked_status == IS_BLOCKED) {
@@ -137,6 +137,8 @@ int controller_update(float kp, float psi, int blocked_status,
         break;
 
     default:
+
+        break;
     }
 
     /*
@@ -162,15 +164,35 @@ float controller_step_steering(float x, float x_ref, float y, float y_ref,
     angle_rudder = kp * angle_error;
 
     /* Clip rudder angle values */
-    if (angle_rudder > MAX_RUD_ANGLE) {
-        angle_rudder = MAX_RUD_ANGLE;
+    if (angle_rudder > MAX_RUD_ANG) {
+        angle_rudder = MAX_RUD_ANG;
     }
 
-    if (angle_rudder < MIN_RUD_ANGLE) {
-        angle_rudder = MIN_RUD_ANGLE;
+    if (angle_rudder < MIN_RUD_ANG) {
+        angle_rudder = MIN_RUD_ANG;
     }
 
     return (-1.0) * angle_rudder;
+}
+
+controller_state_t controller_get_state(void) { return controller_state; }
+
+const char * controller_get_state_str(void) {
+    switch (controller_state) {
+    case CS_WAITING_FOR_NEXT_WP:
+        return "CS_WAITING_FOR_NEXT_WP";
+        break;
+    case CS_MOVING_FORWARD:
+        return "CS_MOVING_FORWARD";
+        break;
+    case CS_MOVING_BACKWARD:
+        return "CS_MOVING_BACKWARD";
+        break;
+    default:
+        break;
+    }
+
+    return "ERROR";
 }
 
 /*
