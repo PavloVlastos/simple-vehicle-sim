@@ -16,6 +16,14 @@ y_max = 20.0
 data = 0x01
 data_old = 0x00
 
+MSG_STATE_Y = 0x78
+MSG_STATE_X = 0x79
+MSG_MAP = 0x7A
+
+N_BYTES_ID = 1
+N_BYTES_SMALL_MSG = 4
+N_BYTES_MAP_MSG = 2500
+
 def handle_client(conn, addr):
     print(f"Connected by {addr}")
 
@@ -24,21 +32,47 @@ def handle_client(conn, addr):
 
     try:
         while True:
-            data = conn.recv(5)  # Receive exactly 5 bytes
-            if not data:
-                break  # No data means the client has closed the connection
+            # Get the message ID byte first
+            msg_id_data = conn.recv(N_BYTES_ID)
+            if not msg_id_data:
+                break
+
+            msg_id = ord(msg_id_data)
+                
+            print(f"Message ID: {msg_id}")
+
+            if (msg_id == MSG_STATE_Y) or (msg_id == MSG_STATE_X):
+                data = conn.recv(N_BYTES_SMALL_MSG)
+
+                if not data:
+                    break  # No data means the client has closed the connection
+
+                state_element_value = struct.unpack('<f', data)[0]
+                print(f"msg_id              = {msg_id:02x}")
+                print(f"state_element_value = {state_element_value}")
+
+                if msg_id == MSG_STATE_Y:
+                    y_position = state_element_value
+
+                if msg_id == MSG_STATE_X:
+                    x_position = state_element_value
+            
+            elif (msg_id == MSG_MAP):
+                data = conn.recv(N_BYTES_MAP_MSG)
+                
+                if not data:
+                    break  # No data means the client has closed the connection
+
+                if msg_id == MSG_STATE_Y:
+                    y_position = state_element_value
+
+                if msg_id == MSG_STATE_X:
+                    x_position = state_element_value
+
+
             # Process the data (for now, we'll just print it)
             print(f"Received from {addr}: ", data)
-            state_element = data[0]
-            state_element_value = struct.unpack('<f', data[-4:])[0]
-            print(f"state_element      = {state_element:02x}")
-            print(f"state_element_value = {state_element_value}")
 
-            if state_element == 0x78:
-                y_position = state_element_value
-
-            if state_element == 0x79:
-                x_position = state_element_value
 
     except Exception as e:
         print(f"Error handling data from {addr}: {e}")
@@ -122,6 +156,8 @@ def start_server(host='127.0.0.1', port=9200):
         
         while True:
             conn, addr = server_socket.accept()
+
+            print(f"conn = {conn}, addr = {addr}")
 
             # Start a new thread to handle the connection
             thread_read = threading.Thread(target=handle_client, args=(conn, addr))
