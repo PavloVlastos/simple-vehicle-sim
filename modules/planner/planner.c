@@ -10,12 +10,15 @@
 /*
  * Defines
  */
+#define NUM_TEST_WPS 5
 
 /*
  * Module-level variables
  */
 static PLAN_payload_t path;
 static planner_t planner;
+static float wp_test_path[NUM_TEST_WPS][DIM2] = {
+    {0.0, 0.0}, {1.0, 2.0}, {1.0, 4.0}, {-1.0, 4.0}, {-1.0, -4.0}};
 
 static uint8_t packed_map[MAP_DFLT_NUM_BYTES_PER_MAP]; /* Internal occupancy map
                                                           (packed) */
@@ -43,7 +46,8 @@ int planner_init(int verbose, planner_t p) {
         status = SUCCESS;
     }
     if ((verbose == 1) && (status == SUCCESS)) {
-        printf(" |________ planner type: %d, %s\r\n", p, planner_get_plan_str());
+        printf(" |________ planner type: %d, %s\r\n", p,
+               planner_get_plan_str());
     }
 
     return status;
@@ -63,6 +67,10 @@ int planner_plan(planner_t p, const map_t *map, float new_wp[DIM2]) {
 
     case P_CUSTOM:
         status = SUCCESS;
+        break;
+
+    case P_TEST:
+        status = planner_test(map, new_wp);
         break;
 
     default:
@@ -89,6 +97,21 @@ int planner_custom(const map_t *map, float new_wp[DIM2]) {
     //     for (i = 0; i < MAP_DFLT_X_LEN; i++) {
     //     }
     // }
+    return SUCCESS;
+}
+
+int planner_test(const map_t *map, float new_wp[DIM2]) {
+    static int i_wp = 0;
+
+    int i = 0;
+
+    for (i = 0; i < DIM2; i++) {
+        new_wp[i] = wp_test_path[i_wp][i];
+    }
+
+    i_wp++;
+    i_wp %= NUM_TEST_WPS;
+
     return SUCCESS;
 }
 

@@ -67,11 +67,9 @@ int map_init(float x_min, float x_max, float y_min, float y_max,
              float div_per_cell);
 /**
  * @param[in] file_path The path and file name of the packed-map file
- * @param[out] map
  * @return 0 for success, or -1 for error
  */
-int map_load_packed_map_file(const char *file_path,
-                             uint8_t map[MAP_DFLT_NUM_BYTES_PER_MAP]);
+int map_load_packed_map_file(const char *file_path) ;
 /**
  * @param[in] file_path The path and file name of the packed-map file
  * @param[in] map
@@ -98,6 +96,11 @@ int map_read_cell_in_packed_map(int *value, int i, int j,
  */
 int map_write_cell_in_packed_map(
     int value, int i, int j, uint8_t map_bytes[MAP_DFLT_NUM_BYTES_PER_MAP]);
+
+/**
+ * @param[out] map_bytes_out The byte array representing the packed map
+ */
+int map_get_map_bytes(uint8_t map_bytes_out[MAP_DFLT_NUM_BYTES_PER_MAP]);
 
 /**
  * @return Pointer to the internal map struct

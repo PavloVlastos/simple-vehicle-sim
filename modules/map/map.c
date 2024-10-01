@@ -11,6 +11,7 @@
  * Private module-level variables
  */
 static map_t map;
+static uint8_t map_bytes[MAP_DFLT_NUM_BYTES_PER_MAP] = {0};
 
 /*
  * Private helper function prototypes
@@ -63,8 +64,7 @@ int map_init(float x_min, float x_max, float y_min, float y_max,
 /*
  * Function implementations
  */
-int map_load_packed_map_file(const char *file_path,
-                             uint8_t map[MAP_DFLT_NUM_BYTES_PER_MAP]) {
+int map_load_packed_map_file(const char *file_path) {
     /*
      * Read in packed-map file for tests
      */
@@ -75,11 +75,11 @@ int map_load_packed_map_file(const char *file_path,
         return ERROR;
     }
 
-    size_t n_bytes_read = fread(map, 1, sizeof(map), file);
+    size_t n_bytes_read = fread(map_bytes, 1, sizeof(map_bytes), file);
 
-    if (n_bytes_read != sizeof(map)) {
+    if (n_bytes_read != sizeof(map_bytes)) {
         printf("map size = %lu bytes, but number of bytes read = %d\r\n",
-               sizeof(map), (int)n_bytes_read);
+               sizeof(map_bytes), (int)n_bytes_read);
         fclose(file);
         return ERROR;
     }
@@ -173,6 +173,15 @@ int map_write_cell_in_packed_map(
 }
 
 const map_t *map_get_map(void) { return &map; }
+
+int map_get_map_bytes(uint8_t map_bytes_out[MAP_DFLT_NUM_BYTES_PER_MAP]) {
+    int i = 0;
+
+    for (i = 0; i < MAP_DFLT_NUM_BYTES_PER_MAP; i++) {
+        map_bytes[i] = map_bytes_out[i];
+    }
+    return SUCCESS;
+}
 
 float map_get_x_min(void) { return map.x_min; }
 

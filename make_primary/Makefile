@@ -4,7 +4,8 @@ CC = gcc
 # Define the compilation flags
 CFLAGS = -std=c11 -O2 -Wall -I../modules -I../modules/common \
 	-I../modules/interface -I../modules/lin_alg -I../modules/model \
-	-I../modules/controller -I../modules/plan -I obj
+	-I../modules/controller -I../modules/planner -I obj \
+	-I../modules/parse_args -I../modules/map 
 
 # Define the linker flags
 LDFLAGS = -L/opt/rh/gcc-toolset-10/root/usr/lib/gcc/x86_64-redhat-linux/10 -lm
@@ -15,7 +16,7 @@ OBJ_DIR = obj
 BIN_DIR = bin
 
 # Define the main file and the executable name
-MAIN_FILE_NAME = svs_sim_main
+MAIN_FILE_NAME = main
 EXEC = $(BIN_DIR)/$(MAIN_FILE_NAME)
 
 # Define the source files
@@ -23,7 +24,10 @@ CSRCS = $(SRC_DIR)/controller/controller.c \
 	$(SRC_DIR)/model/model.c \
 	$(SRC_DIR)/interface/interface.c \
 	$(SRC_DIR)/lin_alg/lin_alg.c \
-	$(SRC_DIR)/common/common.c
+	$(SRC_DIR)/common/common.c \
+	$(SRC_DIR)/parse_args/parse_args.c \
+	$(SRC_DIR)/planner/planner.c \
+	$(SRC_DIR)/map/map.c 
 
 # Define the object files
 OBJS =  $(OBJ_DIR)/$(MAIN_FILE_NAME).o \
@@ -31,7 +35,10 @@ OBJS =  $(OBJ_DIR)/$(MAIN_FILE_NAME).o \
 	$(OBJ_DIR)/model.o \
 	$(OBJ_DIR)/interface.o \
 	$(OBJ_DIR)/lin_alg.o \
-	$(OBJ_DIR)/common.o
+	$(OBJ_DIR)/common.o \
+	$(OBJ_DIR)/parse_args.o \
+	$(OBJ_DIR)/planner.o \
+	$(OBJ_DIR)/map.o 
 
 # Rule to build the main executable
 $(EXEC): $(OBJS)

@@ -134,11 +134,11 @@ int parse_args(int argc, char *argv[]) {
     return SUCCESS;
 }
 
-uint8_t parse_args_is_verbose() { return verbose; }
-uint8_t parse_args_is_tcp_synch() { return tcp_synch; }
-int parse_args_get_max_step_num() { return max_step_num; }
-float parse_args_get_speed() { return speed; }
-float parse_args_get_kp() { return kp; }
-float parse_args_get_ki() { return ki; }
-float parse_args_get_kd() { return kd; }
-float parse_args_get_dt() { return dt; }
+uint8_t parse_args_is_verbose(void) { return verbose; }
+uint8_t parse_args_is_tcp_synch(void) { return tcp_synch; }
+int parse_args_get_max_step_num(void) { return max_step_num; }
+float parse_args_get_speed(void) { return speed; }
+float parse_args_get_kp(void) { return kp; }
+float parse_args_get_ki(void) { return ki; }
+float parse_args_get_kd(void) { return kd; }
+float parse_args_get_dt(void) { return dt; }

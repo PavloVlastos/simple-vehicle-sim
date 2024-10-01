@@ -42,7 +42,7 @@ typedef struct {
     float path[MAX_NUM_WP][DIM2];
 } PLAN_payload_t;
 
-enum planner_e { P_STATIC = 0, P_MYOPIC, P_CUSTOM };
+enum planner_e { P_STATIC = 0, P_MYOPIC, P_CUSTOM, P_TEST };
 
 typedef enum planner_e planner_t;
 

@@ -24,41 +24,41 @@ int parse_args(int argc, char *argv[]);
 /**
  * @return 1 or 0 if verbose or not verbose
  */
-uint8_t parse_args_is_verbose();
+uint8_t parse_args_is_verbose(void);
 
 /**
  * @return 1 if tcp_synch_flag is set, else 0
  */
-uint8_t parse_args_is_tcp_synch();
+uint8_t parse_args_is_tcp_synch(void);
 
 /**
  * @return Maximum step number for simulation
  */
-int parse_args_get_max_step_num();
+int parse_args_get_max_step_num(void);
 
 /**
  * @return Speed of vehicle
  */
-float parse_args_get_speed();
+float parse_args_get_speed(void);
 
 /**
  * @return Propotional gain for steering controller
  */
-float parse_args_get_kp();
+float parse_args_get_kp(void);
 
 /**
  * @return Integral gain for steering controller
  */
-float parse_args_get_ki();
+float parse_args_get_ki(void);
 
 /**
  * @return Derivative gain for steering controller
  */
-float parse_args_get_kd();
+float parse_args_get_kd(void);
 
 /**
  * @return Sample-time for simluation
  */
-float parse_args_get_dt();
+float parse_args_get_dt(void);
 
 #endif /* PARSE_ARGS_H */
