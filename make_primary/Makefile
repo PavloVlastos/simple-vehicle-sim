@@ -2,7 +2,7 @@
 CC = gcc
 
 # Define the compilation flags
-CFLAGS = -std=c11 -O2 -Wall -I../modules -I../modules/common \
+CFLAGS = -std=c11 -O2 -Wall -I ../ -I../modules -I../modules/common \
 	-I../modules/interface -I../modules/lin_alg -I../modules/model \
 	-I../modules/controller -I../modules/planner -I obj \
 	-I../modules/parse_args -I../modules/map 
@@ -38,7 +38,7 @@ OBJS =  $(OBJ_DIR)/$(MAIN_FILE_NAME).o \
 	$(OBJ_DIR)/common.o \
 	$(OBJ_DIR)/parse_args.o \
 	$(OBJ_DIR)/planner.o \
-	$(OBJ_DIR)/map.o 
+	$(OBJ_DIR)/map.o
 
 # Rule to build the main executable
 $(EXEC): $(OBJS)
