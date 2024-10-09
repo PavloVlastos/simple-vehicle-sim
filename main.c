@@ -11,7 +11,11 @@
 #include "modules/planner/planner.h"
 
 /*
- * Helper function protypes
+* #defines
+*/
+
+/*
+ * Helper function prototypes
  */
 
 /*
@@ -148,9 +152,11 @@ int main(int argc, char *argv[]) {
                 printf("data = 0x%02x\r\n", data_new);
             }
 
-            interface_send_tcp_message(socket, 0x78, svs.x);
-            interface_send_tcp_message(socket, 0x79, svs.y);
-            interface_send_tcp_message(socket, 0x7A, svs.psi);
+            interface_send_tcp_message(socket, MSG_STATE_X, svs.x);
+            interface_send_tcp_message(socket, MSG_STATE_Y, svs.y);
+            interface_send_tcp_message(socket, MSG_STATE_PSI, svs.psi);
+            interface_send_tcp_message(socket, MSG_TARGET_X, target_wp[0]);
+            interface_send_tcp_message(socket, MSG_TARGET_Y, target_wp[1]);
             // interface_send_tcp_map(socket, 0x7B, map_get_map());
 
             data_old = data_new;
@@ -197,9 +203,9 @@ int main(int argc, char *argv[]) {
         /*
          * Print and/or save data
          */
-        printf("[t=%03.3f]: count=%d, x=%03.3f, y=%03.3f, psi=%03.3f, "
+        printf("[t=%03.3f]: count=%d, cs= %d, x=%03.3f, y=%03.3f, psi=%03.3f, "
                "u=%03.3f, twp_x=%03.3f, twp_y=%03.3f\r\n",
-               t, count, svs.x, svs.y, svs.psi, rud_ang, target_wp[0],
+               t, count, cs_curr, svs.x, svs.y, svs.psi, rud_ang, target_wp[0],
                target_wp[1]);
 
         if (count >= max_step_num) {

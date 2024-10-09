@@ -15,17 +15,40 @@
  * #defines
  */
 
+/*
+ * Error/Success Codes
+ */
 #define ERROR -1
 #define SUCCESS 0
+
+/*
+ * Blocking
+ */
 #define IS_BLOCKED 1
 #define IS_NOT_BLOCKED 0
 
+/*
+ * Message IDs
+ */
+#define MSG_STATE_X 0x70
+#define MSG_STATE_Y 0x71
+#define MSG_STATE_PSI 0x72
+#define MSG_TARGET_X 0x73
+#define MSG_TARGET_Y 0x74
+#define MSG_MAP 0x75
+
+/*
+ * Dimensions
+ */
 #define DIM2 2
 #define DIM3 3
 #define DIM4 4
 #define DIM5 5
 #define DIM6 6
 
+/*
+ * Vehicle specific
+ */
 #define BASE_LENGTH (float)1.0           /* vehicle base length in meters */
 #define MIN_RUD_ANG (float)(-0.2 * M_PI) /* minimum rudder angle in radians */
 #define MAX_RUD_ANG (float)(0.2 * M_PI)  /* maximum rudder angle in radians  */
