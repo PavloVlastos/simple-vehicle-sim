@@ -35,9 +35,10 @@ int interface_send_tcp_message(int sock, uint8_t id, float value);
 
 /**
  * @param[in] sock The socket number
+ * @param[in] verbose A verbose flag
  * @param[out] data A pointer do a data byte
  */
-int interface_receive_byte(int sock, uint8_t *data);
+int interface_receive_byte(int sock, uint8_t verbose, uint8_t *data);
 
 /**
  * @param[in] sock The socket number

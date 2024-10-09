@@ -137,19 +137,19 @@ int main(int argc, char *argv[]) {
          */
         if (tcp_synch_flag == 1) {
 
-            status = interface_receive_byte(socket, &data_new);
+            status = interface_receive_byte(socket, verbose, &data_new);
 
             /* Block */
             while (data_new == data_old) {
 
-                status = interface_receive_byte(socket, &data_new);
+                status = interface_receive_byte(socket, verbose, &data_new);
 
                 if (status < 0) {
                     break;
                 }
             };
             if (verbose == 1) {
-                printf("data = 0x%02x\r\n", data_new);
+                printf(" | data = 0x%02x\r\n", data_new);
             }
 
             interface_send_tcp_message(socket, MSG_STATE_X, svs.x);

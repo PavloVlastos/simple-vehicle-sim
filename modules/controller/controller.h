@@ -40,15 +40,11 @@ int controller_init(int verbose);
 
 /**
  * @param[in] vehicle_position The vehicle position [x, y]
+ * @param[in] wp_target The target waypoint [wp_x, wp_y]
  * @return 0 for success, or -1 for error
  */
-int controller_get_vehicle_prox(float vehicle_position[DIM2]);
-
-/**
- * @param[out] wp_out
- * @return 0 for success, or -1 for error
- */
-int controller_get_target_waypoint(float wp_out[DIM2]);
+controller_get_vehicle_prox(float vehicle_position[DIM2],
+                            float wp_target[DIM2]);
 
 /**
  * @param[in] kp The desired proportional gain of the steering controller
@@ -85,6 +81,6 @@ controller_state_t controller_get_state(void);
 /**
  * @return The state of the controller as a string
  */
-const char * controller_get_state_str(void);
+const char *controller_get_state_str(void);
 
 #endif /* CONTROLLER_H */

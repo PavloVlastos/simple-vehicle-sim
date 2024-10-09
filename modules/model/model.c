@@ -40,7 +40,7 @@ int model_update(const float dt, float rudder_angle, float speed, float vx_dist,
 
     /*
      * Psi is the angle between the global y-axis and vehicle velocity vector,
-     * hence sin and cos correspond to x and y respecively below.
+     * hence sin and cos correspond to x and y respectively below.
      */
     int_st.x += (int_st.spd * sin(int_st.psi) + vx_dist) * dt;
     int_st.y += (int_st.spd * cos(int_st.psi) + vy_dist) * dt;
@@ -65,7 +65,7 @@ int model_get_state(state_t *state_out) {
 
 int model_get_position(float position_out[DIM2]) {
     position_out[0] = int_st.x;
-    position_out[0] = int_st.y;
+    position_out[1] = int_st.y;
     return SUCCESS;
 }
 

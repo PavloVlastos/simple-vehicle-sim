@@ -2,13 +2,13 @@
 CC = gcc
 
 # Define the compilation flags
-CFLAGS = -std=c11 -O2 -Wall -I ../ -I../modules -I../modules/common \
+CFLAGS = -std=c11 -O0 -Wall -g -I ../ -I../modules -I../modules/common \
 	-I../modules/interface -I../modules/lin_alg -I../modules/model \
 	-I../modules/controller -I../modules/planner -I obj \
 	-I../modules/parse_args -I../modules/map 
 
 # Define the linker flags
-LDFLAGS = -L/opt/rh/gcc-toolset-10/root/usr/lib/gcc/x86_64-redhat-linux/10 -lm
+LDFLAGS = -lm
 
 # Define the directories
 SRC_DIR = ../modules

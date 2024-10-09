@@ -64,12 +64,12 @@ int interface_send_tcp_map(int sock, uint8_t id,
     return SUCCESS;
 }
 
-int interface_receive_byte(int sock, uint8_t *data) {
+int interface_receive_byte(int sock, uint8_t verbose, uint8_t *data) {
     ssize_t bytes_received;
 
     // Receive a single byte from the server
     bytes_received = recv(sock, data, 1, 0);
-    if (bytes_received <= 0) {
+    if ((bytes_received <= 0) && (verbose == 1)) {
         printf("Interface: Receive failed\r\n");
         return ERROR;
     }

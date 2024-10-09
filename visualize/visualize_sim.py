@@ -3,6 +3,7 @@ import sys
 import threading
 import struct
 import time
+import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib
 import os
@@ -15,6 +16,7 @@ y_position = 0.0
 x_wps = []
 y_wps = []
 heading_angle = 0.0
+last_angle = 0.0
 x_min = -20.0
 x_max = 20.0
 y_min = -20.0
@@ -146,21 +148,41 @@ def plot_vehicle():
     global x_position
     global y_position
     global heading_angle
+    global last_angle
+
+    vehicle_marker = matplotlib.markers.MarkerStyle("^")
+    vehicle_marker._transform.rotate(last_angle)
+    vehicle_marker._transform.rotate(-heading_angle)
+    last_angle = heading_angle
 
     fig, ax = plt.subplots()
     ax.set_title(f"Vehicle Position")
     ax.set_xlim([x_min, x_max])
     ax.set_ylim([y_min, y_max])
+
+    waypoints = ax.plot(
+        x_wps,
+        y_wps,
+        markersize=10,
+        label="waypoints",
+        linestyle="none",
+        marker="x",
+        markeredgecolor="red",
+        animated=True,
+    )[0]
+
     vehicle = ax.plot(
         x_position,
         y_position,
         markersize=10,
         label="vehicle",
         linestyle="none",
-        marker=(3, 0, heading_angle),
+        marker=vehicle_marker,
         markeredgecolor="black",
+        markerfacecolor="tab:blue",
         animated=True,
     )[0]
+
     ax.legend()
     ax.grid()
     plt.show(block=False)
@@ -168,6 +190,7 @@ def plot_vehicle():
     bg = fig.canvas.copy_from_bbox(fig.bbox)
 
     ax.draw_artist(vehicle)
+    ax.draw_artist(waypoints)
     fig.canvas.blit(fig.bbox)
 
     while True:
@@ -175,7 +198,14 @@ def plot_vehicle():
             print(f"x_position={x_position:>6.3f}, y_position={y_position:>6.3f}")
             print(f"data_new={data}, data_old={data_old}")
             fig.canvas.restore_region(bg)
+
+            vehicle_marker._transform.rotate(last_angle)
+            vehicle_marker._transform.rotate(-heading_angle)
+            last_angle = heading_angle
+
+            waypoints.set_data(y_wps, x_wps)
             vehicle.set_data(y_position, x_position)
+            ax.draw_artist(waypoints)
             ax.draw_artist(vehicle)
             fig.canvas.blit(fig.bbox)
             fig.canvas.flush_events()
@@ -255,10 +285,7 @@ def read_message_ids():
             msg_target_x = match.group(1)  # Set the global variable with the value
             print(f"MSG_TARGET_X is defined as: {msg_target_x}")
             msg_target_x = int(msg_target_x, 16)
-            
-            # @TODO: delete this line
-            print(f"type(msg_target_x)={type(msg_target_x)}")
-        
+
         else:
             print("MSG_TARGET_X not found in the file.")
 

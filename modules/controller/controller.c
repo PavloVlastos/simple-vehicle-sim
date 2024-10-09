@@ -4,7 +4,6 @@
  * Module-level variables
  */
 static controller_state_t controller_state = CS_WAITING_FOR_NEXT_WP;
-static float wp_target[DIM2] = {0.0};
 
 /*
  * Private function prototypes
@@ -29,10 +28,6 @@ int controller_init(int verbose) {
         printf(" |______ DIM2 = %d\r\n", DIM2);
     }
 
-    for (i = 0; i < DIM2; i++) {
-        wp_target[i] = 0.0;
-    }
-
     if (verbose == 1) {
         printf(" |____ finished controller init\r\n");
     }
@@ -40,7 +35,8 @@ int controller_init(int verbose) {
     return status;
 }
 
-int controller_get_vehicle_prox(float vehicle_position[DIM2]) {
+int controller_get_vehicle_prox(float vehicle_position[DIM2],
+                                float wp_target[DIM2]) {
     int is_near = VEHICLE_OUT_PROX;
     int i;
     float result[DIM2] = {0.0};
@@ -66,12 +62,6 @@ int controller_get_vehicle_prox(float vehicle_position[DIM2]) {
     return is_near;
 }
 
-int controller_get_target_waypoint(float wp_out[DIM2]) {
-    wp_out[0] = wp_target[0];
-    wp_out[1] = wp_target[1];
-    return SUCCESS;
-}
-
 int controller_update(float kp, float psi, int blocked_status,
                       float vehicle_position[DIM2], float target_waypoint[DIM2],
                       float output[DIM2]) {
@@ -94,11 +84,12 @@ int controller_update(float kp, float psi, int blocked_status,
         throttle = 0.0;
 
         /* Transition Conditions */
-        if (controller_get_vehicle_prox(vehicle_position) == VEHICLE_IN_PROX) {
+        if (controller_get_vehicle_prox(vehicle_position, target_waypoint) ==
+            VEHICLE_IN_PROX) {
             controller_state = CS_WAITING_FOR_NEXT_WP;
         }
 
-        if ((controller_get_vehicle_prox(vehicle_position) ==
+        if ((controller_get_vehicle_prox(vehicle_position, target_waypoint) ==
              VEHICLE_OUT_PROX) &&
             (blocked_status == IS_NOT_BLOCKED)) {
             controller_state = CS_MOVING_FORWARD;
@@ -111,7 +102,8 @@ int controller_update(float kp, float psi, int blocked_status,
         throttle = 1.0;
 
         /* Transition Conditions */
-        if (controller_get_vehicle_prox(vehicle_position) == VEHICLE_IN_PROX) {
+        if (controller_get_vehicle_prox(vehicle_position, target_waypoint) ==
+            VEHICLE_IN_PROX) {
             controller_state = CS_WAITING_FOR_NEXT_WP;
         }
 
@@ -177,7 +169,7 @@ float controller_step_steering(float x, float x_ref, float y, float y_ref,
 
 controller_state_t controller_get_state(void) { return controller_state; }
 
-const char * controller_get_state_str(void) {
+const char *controller_get_state_str(void) {
     switch (controller_state) {
     case CS_WAITING_FOR_NEXT_WP:
         return "CS_WAITING_FOR_NEXT_WP";
