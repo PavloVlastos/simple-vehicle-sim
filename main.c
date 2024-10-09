@@ -1,14 +1,14 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "modules/common/common.h"
-#include "modules/controller/controller.h"
-#include "modules/interface/interface.h"
-#include "modules/lin_alg/lin_alg.h"
-#include "modules/map/map.h"
-#include "modules/model/model.h"
-#include "modules/parse_args/parse_args.h"
-#include "modules/planner/planner.h"
+#include "common.h"
+#include "controller.h"
+#include "interface.h"
+#include "lin_alg.h"
+#include "map.h"
+#include "model.h"
+#include "parse_args.h"
+#include "planner.h"
 
 /*
 * #defines
