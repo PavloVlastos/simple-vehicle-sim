@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.13.4)
-project(mav_sim VERSION 0.1.0 LANGUAGES C CXX)
+project(SVS VERSION 0.1.0 LANGUAGES C CXX)
 
 set(CMAKE_BUILD_TYPE Debug)
 
@@ -35,6 +35,6 @@ set(sources
 
 add_compile_options(-Wall -Wextra)
 
-add_executable(svs_sim main.c ${sources})
+add_executable(svs main.c ${sources})
 
-target_link_libraries(svs_sim m)
+target_link_libraries(svs m)
