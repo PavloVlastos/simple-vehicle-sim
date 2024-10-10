@@ -32,6 +32,16 @@ int model_init(const state_t *state_in);
 int model_update(const float dt, float rudder_angle, float speed, float vx_dist,
                  float vy_dist);
 
+/**
+ * @param[in] angle The heading angle of the vehicle
+ * @return The wrapped angle between [-pi, pi]
+ */
+float model_wrap_angle(float angle);
+
+/**
+ * @param[out] state_out The state of the vehicle model
+ * @return 0 for success, or -1 for error
+ */
 int model_get_state(state_t *state_out);
 
 /**

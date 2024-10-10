@@ -1,8 +1,28 @@
+/*
+ * File: model.c
+ */
+
+/*
+ * #includes
+ */
 
 #include "model.h"
 #include <math.h>
 
+/*
+ * #defines
+ */
+#define TWO_PI (float) (2.0*M_PI)
+
+/*
+ * Module-level variables
+ */
+
 static state_t int_st; /* Internal state */
+
+/*
+ * Function implementations
+ */
 
 int model_init(const state_t *state_in) {
     int status;
@@ -49,7 +69,24 @@ int model_update(const float dt, float rudder_angle, float speed, float vx_dist,
     int_st.psi_rate = (-1.0) * int_st.spd * tan(rudder_angle) / base_length;
     int_st.psi += int_st.psi_rate * dt;
 
+    /*
+     * Wrap angle
+     */
+    int_st.psi = model_wrap_angle(int_st.psi);
+
     return SUCCESS;
+}
+
+float model_wrap_angle(float angle) {
+
+    angle = fmod( angle + M_PI, TWO_PI);
+
+    if (angle < 0) {
+        angle += TWO_PI;
+    }
+
+    return angle - M_PI;
+
 }
 
 int model_get_state(state_t *state_out) {
