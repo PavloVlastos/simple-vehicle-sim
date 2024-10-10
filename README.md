@@ -67,3 +67,49 @@ Total number of warnings              : 96
 `ikos <file_name>.bc -e=<your_main_file>`
 
 ## CBMC
+[In-the-works]:
+### Setup:
+1. `sudo apt-get install cbmc`
+
+### Use:
+1. Run `bash run_cbmc.sh`
+
+## KLEE
+[In-the-works]:
+### Setup:
+1. `sudo snap install klee`
+2. You may need to run `alias ktest-tool=/snap/klee/10/usr/local/bin/ktest-tool` or add it to youre ~/.bashrc file at the bottom (up to you). This lets you call ktest-tool anywhere
+
+### Use:
+1. `cd KT_<module_name>`
+2. `make clean`
+3. `make`
+4. `klee linked_<module_name>.bc`
+5. `ktest-tool klee-last/test<some_number>.ketst`
+#### Example Output:
+```
+$ ktest-tool klee-last/test000001.ktest 
+ktest file : 'klee-last/test000001.ktest'
+args       : ['linked_model.bc']
+num objects: 3
+object 0: name: 'dt'
+object 0: size: 4
+object 0: data: b'\x00\x00\x00\x00'
+object 0: hex : 0x00000000
+object 0: int : 0
+object 0: uint: 0
+object 0: text: ....
+object 1: name: 'speed'
+object 1: size: 4
+object 1: data: b'\x00\x00\x00\x00'
+object 1: hex : 0x00000000
+object 1: int : 0
+object 1: uint: 0
+object 1: text: ....
+object 2: name: 'rudder_cmd'
+object 2: size: 4
+object 2: data: b'\x00\x00\x00\x00'
+object 2: hex : 0x00000000
+object 2: int : 0
+object 2: uint: 0
+object 2: text: ....```
