@@ -112,4 +112,17 @@ object 2: data: b'\x00\x00\x00\x00'
 object 2: hex : 0x00000000
 object 2: int : 0
 object 2: uint: 0
-object 2: text: ....```
+object 2: text: ....
+```
+
+## Frama-C
+### Setup:
+1. `sudo apt isntall opam`
+2. `opam init`
+3. `eval $(opam env)`
+4. `opam install frama-c`
+
+### Use:
+#### -val
+1. `eval $(opam env)`
+2. `frama-c -cpp-command "gcc -C -E -I ./modules -I ./modules/common" main.c`
