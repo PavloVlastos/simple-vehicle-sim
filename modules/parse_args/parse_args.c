@@ -6,11 +6,12 @@
 static uint8_t verbose = 0;
 static uint8_t tcp_synch = 0;
 static int max_step_num = 0;
-static float speed = 5.0;
+static float speed = 15.0;
 static float kp = 1.0;
 static float ki = 0.0;
 static float kd = 0.01;
 static float dt = 0.01;
+static planner_t plan = P_STATIC;
 
 /*
  * Function implmentations
@@ -58,6 +59,18 @@ int parse_args(int argc, char *argv[]) {
                 if (max_step_num <= 0) {
                     printf("Error: maximum step number cannot less than or "
                            "equal to zero!\r\n");
+                    return ERROR;
+                }
+            }
+        } else if (strcmp(argv[i], "-p") == 0 ||
+                   strcmp(argv[i], "--planner") == 0) {
+            if (i + 1 < argc) /* Check for next arg*/
+            {
+                i++;
+                plan = (planner_t)atoi(argv[i]);
+
+                if ((plan <= 0) || (plan > 5)) {
+                    printf("Error: planner type is invalid: %d\r\n", plan);
                     return ERROR;
                 }
             }
@@ -117,6 +130,7 @@ int parse_args(int argc, char *argv[]) {
             printf("    --kd,              Derivative gain for "
                    "controller\r\n");
             printf("    --speed,           Vehicle speed, constant (m/s)\r\n");
+            printf("    --planner,         Path planner type, either 0, 1, 2, or 3\r\n");
 
             return SUCCESS;
         } else {
@@ -130,7 +144,7 @@ int parse_args(int argc, char *argv[]) {
             printf("Argument: %d: %s\r\n", i, argv[i]);
         }
     }
-    
+
     return SUCCESS;
 }
 
@@ -142,3 +156,4 @@ float parse_args_get_kp(void) { return kp; }
 float parse_args_get_ki(void) { return ki; }
 float parse_args_get_kd(void) { return kd; }
 float parse_args_get_dt(void) { return dt; }
+planner_t parse_args_get_plan(void) {return plan; }

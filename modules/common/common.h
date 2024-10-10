@@ -30,6 +30,7 @@
 /*
  * Message IDs
  */
+#define MSG_PING 0x42
 #define MSG_STATE_X 0x70
 #define MSG_STATE_Y 0x71
 #define MSG_STATE_PSI 0x72

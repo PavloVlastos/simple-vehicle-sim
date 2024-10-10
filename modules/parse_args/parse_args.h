@@ -5,6 +5,7 @@
  * #includes
  */
 #include "common.h"
+#include "planner.h"
 
 /*
  * Module datatypes
@@ -60,5 +61,10 @@ float parse_args_get_kd(void);
  * @return Sample-time for simluation
  */
 float parse_args_get_dt(void);
+
+/**
+ * @return The path planner type
+ */
+planner_t parse_args_get_plan(void);
 
 #endif /* PARSE_ARGS_H */

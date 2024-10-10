@@ -64,13 +64,36 @@ int interface_send_tcp_map(int sock, uint8_t id,
     return SUCCESS;
 }
 
-int interface_receive_byte(int sock, uint8_t verbose, uint8_t *data) {
+int interface_receive_byte(int sock, uint8_t verbose, int timeout_sec,
+                           uint8_t *data) {
     ssize_t bytes_received;
+    struct timeval timeout;
+
+    // Set a timeout for receiving data
+    timeout.tv_sec = timeout_sec; // Timeout in seconds
+    timeout.tv_usec = 0;          // 0 microseconds (no partial seconds)
+
+    // Apply the timeout to the socket
+    if (setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, (const char *)&timeout,
+                   sizeof(timeout)) < 0) {
+        if (verbose == 1) {
+            printf(" |__ Interface: Failed to set socket timeout\r\n");
+        }
+        return ERROR;
+    }
 
     // Receive a single byte from the server
     bytes_received = recv(sock, data, 1, 0);
-    if ((bytes_received <= 0) && (verbose == 1)) {
-        printf("Interface: Receive failed\r\n");
+    if (bytes_received <= 0) {
+        if (verbose == 1) {
+            if (bytes_received == 0) {
+                printf(" |__ Interface: Connection closed by peer\r\n");
+            } else if (errno == EWOULDBLOCK || errno == EAGAIN) {
+                printf(" |__ Interface: Receive timeout\r\n");
+            } else {
+                printf(" |__ Interface: Receive failed\r\n");
+            }
+        }
         return ERROR;
     }
 

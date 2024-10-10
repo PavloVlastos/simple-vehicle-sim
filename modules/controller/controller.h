@@ -12,7 +12,7 @@
  * #defines
  */
 #define WP_EXIT_THRESH 0.7
-#define WP_ENTR_THRESH 0.35
+#define WP_ENTR_THRESH 0.2
 
 #define VEHICLE_IN_PROX 1
 #define VEHICLE_OUT_PROX 0

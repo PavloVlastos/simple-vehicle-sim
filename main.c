@@ -11,8 +11,8 @@
 #include "planner.h"
 
 /*
-* #defines
-*/
+ * #defines
+ */
 
 /*
  * Helper function prototypes
@@ -38,14 +38,18 @@ int main(int argc, char *argv[]) {
     float t = 0.0;
 
     int count = 0;
+    int t_out_sec = 1;
 
-    float rud_ang = 0.0;
-    float throttle = 0.0;
+    int ping_count = 0;
+
+    float steer_cmd = 0.0;
+    float throttle_cmd = 0.0;
     float target_wp[DIM2] = {0.0};
 
     uint8_t data_new = 0;
     uint8_t data_old = 0;
     uint8_t blocked = IS_NOT_BLOCKED;
+    uint8_t safe_to_integrate = 1;
 
     int status = SUCCESS;
 
@@ -64,6 +68,7 @@ int main(int argc, char *argv[]) {
     kp = parse_args_get_kp();
     ki = parse_args_get_ki();
     kd = parse_args_get_kd();
+    p = parse_args_get_plan();
 
     if (verbose == 1) {
         printf(" | Initializing svs-sim...\r\n");
@@ -74,6 +79,7 @@ int main(int argc, char *argv[]) {
         printf(" |__ kd             = %f\r\n", kd);
         printf(" |__ kp             = %f\r\n", kp);
         printf(" |__ vehicle speed  = %f\r\n", spd);
+        printf(" |__ path planner   = %d\r\n", p);
         printf(" |__ max_step_num   = %d\r\n", max_step_num);
     }
 
@@ -109,19 +115,26 @@ int main(int argc, char *argv[]) {
     }
     planner_init(verbose, p);
 
-    if (verbose == 1) {
-        printf(" | SVS initialized\r\n");
-    }
-
     int socket = ERROR;
-
     if (tcp_synch_flag == 1) {
+        if (verbose == 1) {
+            printf(" |__ Initializing TCP interface ...\r\n");
+        }
+
         socket = interface_open_tcp_connection("127.0.0.1", 9200);
 
         if (socket < 0) {
             printf("Failed to connect to server\r\n");
             return ERROR;
         }
+    }
+
+    /*
+     * Finished all module initialization at this point
+     */
+
+    if (verbose == 1) {
+        printf(" | SVS initialized\r\n");
     }
 
     if (verbose == 1) {
@@ -137,27 +150,60 @@ int main(int argc, char *argv[]) {
          */
         if (tcp_synch_flag == 1) {
 
-            status = interface_receive_byte(socket, verbose, &data_new);
+            /*
+             * Transmit data
+             */
 
-            /* Block */
-            while (data_new == data_old) {
-
-                status = interface_receive_byte(socket, verbose, &data_new);
-
-                if (status < 0) {
-                    break;
-                }
-            };
-            if (verbose == 1) {
-                printf(" | data = 0x%02x\r\n", data_new);
-            }
-
+            // if (verbose == 1) {
+            //     printf(" | sent MSG_PING = 0x%02x\r\n", MSG_PING);
+            // }
+            // interface_send_tcp_message(socket, MSG_PING, 0.0);
             interface_send_tcp_message(socket, MSG_STATE_X, svs.x);
             interface_send_tcp_message(socket, MSG_STATE_Y, svs.y);
             interface_send_tcp_message(socket, MSG_STATE_PSI, svs.psi);
             interface_send_tcp_message(socket, MSG_TARGET_X, target_wp[0]);
             interface_send_tcp_message(socket, MSG_TARGET_Y, target_wp[1]);
             // interface_send_tcp_map(socket, 0x7B, map_get_map());
+
+            if (verbose == 1) {
+                printf(" | waiting for data byte...\r\n");
+            }
+
+            status = interface_receive_byte(socket, verbose, t_out_sec, &data_new);
+            // interface_send_tcp_message(socket, MSG_PING, 0.0);
+
+            if (verbose == 1) {
+                printf(" | (data_new, data_old) = (%d, %d)\r\n", data_new,
+                       data_old);
+            }
+
+            /* Block */
+            // while (data_new == data_old) {
+
+            //     status = interface_receive_byte(socket, verbose, t_out_sec,
+            //     &data_new);
+
+            //     // if (status < 0) {
+            //     //     break;
+            //     // }
+            //     if (verbose == 1) {
+            //         if (ping_count % 100000 == 0) {
+            //             printf(". ");
+            //         }
+            //     }
+
+            //     ping_count++;
+            // }
+            if (verbose == 1) {
+                printf("\n | data = 0x%02x\r\n", data_new);
+            }
+
+            if (data_new != data_old) {
+                safe_to_integrate = 1;
+            } else {
+                safe_to_integrate = 0;
+                // sleep(1);
+            }
 
             data_old = data_new;
         }
@@ -188,32 +234,37 @@ int main(int argc, char *argv[]) {
          */
         controller_update(kp, svs.psi, blocked, position, target_wp,
                           controller_output);
-        rud_ang = controller_output[0];
+        steer_cmd = controller_output[0];
+        throttle_cmd = controller_output[1];
 
         /*
          * Update model
          */
-        model_update(dt, rud_ang, svs.spd, 0.0, 0.0);
-        model_get_state(&svs);
+        if (safe_to_integrate) {
+            model_update(dt, steer_cmd, svs.spd, 0.0, 0.0);
+            model_get_state(&svs);
 
-        count++;
+            count++;
 
-        t += dt;
+            t += dt;
 
-        /*
-         * Print and/or save data
-         */
-        printf("[t=%03.3f]: count=%d, cs= %d, x=%03.3f, y=%03.3f, psi=%03.3f, "
-               "u=%03.3f, twp_x=%03.3f, twp_y=%03.3f\r\n",
-               t, count, cs_curr, svs.x, svs.y, svs.psi, rud_ang, target_wp[0],
-               target_wp[1]);
+            /*
+             * Print and/or save data
+             */
+            printf(
+                "[t=%03.3f]: count=%d, cs= %d, x=%03.3f, y=%03.3f, psi=%03.3f, "
+                "steer_cmd=%03.3f, throttle_cmd=%03.3f, twp_x=%03.3f, "
+                "twp_y=%03.3f\r\n",
+                t, count, cs_curr, svs.x, svs.y, svs.psi, steer_cmd,
+                throttle_cmd, target_wp[0], target_wp[1]);
 
-        if (count >= max_step_num) {
-            if (verbose == 1) {
-                printf("Maximum step count reached %d/%d\r\n", count,
-                       max_step_num);
+            if (count >= max_step_num) {
+                if (verbose == 1) {
+                    printf("Maximum step count reached %d/%d\r\n", count,
+                           max_step_num);
+                }
+                break;
             }
-            break;
         }
     }
 

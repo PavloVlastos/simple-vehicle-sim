@@ -18,7 +18,7 @@
 static PLAN_payload_t path;
 static planner_t planner;
 static float wp_test_path[NUM_TEST_WPS][DIM2] = {
-    {0.0, 0.0}, {1.0, 2.0}, {1.0, 4.0}, {-1.0, 4.0}, {-1.0, -4.0}};
+    {0.0, 0.0}, {1.0, 2.0}, {10.0, 4.0}, {-1.0, 4.0}, {-10.0, -10.0}};
 
 static uint8_t packed_map[MAP_DFLT_NUM_BYTES_PER_MAP]; /* Internal occupancy map
                                                           (packed) */
