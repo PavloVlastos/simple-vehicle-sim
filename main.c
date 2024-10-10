@@ -90,7 +90,7 @@ int main(int argc, char *argv[]) {
     state_t svs;
 
     svs.x = -10.0;
-    svs.y = -10.0;
+    svs.y = -5.0;
     svs.spd = spd;
     svs.psi = 0.25 * M_PI;
 
