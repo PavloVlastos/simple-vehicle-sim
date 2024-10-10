@@ -20,7 +20,8 @@
 /*
  * Module datatypes
  */
-enum controller_states_e {
+enum controller_states_e
+{
     CS_WAITING_FOR_NEXT_WP = 0,
     CS_MOVING_FORWARD,
     CS_MOVING_BACKWARD
@@ -43,7 +44,7 @@ int controller_init(int verbose);
  * @param[in] wp_target The target waypoint [wp_x, wp_y]
  * @return 0 for success, or -1 for error
  */
-controller_get_vehicle_prox(float vehicle_position[DIM2],
+int controller_get_vehicle_prox(float vehicle_position[DIM2],
                             float wp_target[DIM2]);
 
 /**

@@ -31,7 +31,6 @@ Run the following commands to build simple-vehicle-sim using `cmake`
 5.1 (optional) in a seperate terminal run `python visualize/visualizes_sim.py`
 6. `./svs --kp 1.0 -v -m 1000 -t --speed 5.0 --dt 0.05`
 
-
 ## IKOS
 To use IKOS for static analysis:
 
@@ -66,3 +65,5 @@ Total number of warnings              : 96
 1. Try using `ikos-scan-extract <file_name>.o`. This should generate a `<file_name>.bc`.
 2. Try analyzing a program with a specific entry point. IKOS needs an entry point (main). If you have a library in the form of `<file_name>.o` already, you can specify your own main as an entry point:\
 `ikos <file_name>.bc -e=<your_main_file>`
+
+## CBMC
