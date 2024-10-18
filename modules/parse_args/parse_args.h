@@ -28,9 +28,14 @@ int parse_args(int argc, char *argv[]);
 uint8_t parse_args_is_verbose(void);
 
 /**
- * @return 1 if tcp_synch_flag is set, else 0
+ * @return 1 if animate_flag is set, else 0
  */
-uint8_t parse_args_is_tcp_synch(void);
+uint8_t parse_args_is_animate(void);
+
+/**
+ * @return 1 if stress_test is set, else 0
+ */
+uint8_t parse_args_is_stress_test(void);
 
 /**
  * @return Maximum step number for simulation

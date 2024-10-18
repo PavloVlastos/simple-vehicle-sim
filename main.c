@@ -21,8 +21,10 @@
 /*
  *
  */
-int main(int argc, char *argv[]) {
-    uint8_t tcp_synch_flag = 0;
+int main(int argc, char *argv[])
+{
+    uint8_t animate_flag = 0;
+    uint8_t stress_test = 0;
     int max_step_num = 1;
     uint8_t verbose = 0;
 
@@ -62,7 +64,8 @@ int main(int argc, char *argv[]) {
     parse_args(argc, argv);
 
     verbose = parse_args_is_verbose();
-    tcp_synch_flag = parse_args_is_tcp_synch();
+    animate_flag = parse_args_is_animate();
+    stress_test = parse_args_is_stress_test();
     max_step_num = parse_args_get_max_step_num();
     spd = parse_args_get_speed();
     kp = parse_args_get_kp();
@@ -70,10 +73,12 @@ int main(int argc, char *argv[]) {
     kd = parse_args_get_kd();
     p = parse_args_get_plan();
 
-    if (verbose == 1) {
+    if (verbose == 1)
+    {
         printf(" | Initializing svs-sim...\r\n");
         printf(" |__ verbose        = %d\r\n", verbose);
-        printf(" |__ tcp_synch_flag = %d\r\n", tcp_synch_flag);
+        printf(" |__ animate_flag   = %d\r\n", animate_flag);
+        printf(" |__ stress_test    = %d\r\n", stress_test);
         printf(" |__ kp             = %f\r\n", kp);
         printf(" |__ ki             = %f\r\n", ki);
         printf(" |__ kd             = %f\r\n", kd);
@@ -84,7 +89,8 @@ int main(int argc, char *argv[]) {
     }
 
     /**************************************************************************/
-    if (verbose == 1) {
+    if (verbose == 1)
+    {
         printf(" | Initializing Simple Vehicle Simulation (SVS) ...\r\n");
     }
     state_t svs;
@@ -94,37 +100,61 @@ int main(int argc, char *argv[]) {
     svs.spd = spd;
     svs.psi = 0.25 * M_PI;
 
-    if (verbose == 1) {
+    if (verbose == 1)
+    {
         printf(" |__ Initializing controller ...\r\n");
     }
     controller_init(verbose);
 
-    if (verbose == 1) {
+    if (verbose == 1)
+    {
         printf(" |__ Initializing model ...\r\n");
     }
     model_init(&svs);
 
-    if (verbose == 1) {
+    if (verbose == 1)
+    {
         printf(" |__ Initializing map ...\r\n");
     }
     map_init(MAP_DFLT_X_MIN, MAP_DFLT_X_MAX, MAP_DFLT_Y_MIN, MAP_DFLT_Y_MAX,
              MAP_DFLT_DIV_PER_CELL);
 
-    if (verbose == 1) {
+    if (verbose == 1)
+    {
         printf(" |__ Initializing planner ...\r\n");
     }
     planner_init(verbose, p);
 
-    int socket = ERROR;
-    if (tcp_synch_flag == 1) {
-        if (verbose == 1) {
-            printf(" |__ Initializing TCP interface ...\r\n");
+    int socket_animate = ERROR;
+    if (animate_flag == 1)
+    {
+        if (verbose == 1)
+        {
+            printf(" |__ Initializing TCP interface for animation ...\r\n");
         }
 
-        socket = interface_open_tcp_connection("127.0.0.1", 9200);
+        socket_animate = interface_open_tcp_connection("127.0.0.1", 9200);
 
-        if (socket < 0) {
-            printf("Failed to connect to server\r\n");
+        if (socket_animate < 0)
+        {
+            printf("Failed to connect to server for animating\r\n");
+            return ERROR;
+        }
+    }
+
+    int socket_stress_test = ERROR;
+    if (stress_test == 1)
+    {
+        if (verbose == 1)
+        {
+            printf(" |__ Initializing TCP interface for stress test ...\r\n");
+        }
+
+        socket_stress_test = interface_open_tcp_connection("127.0.0.1", 9201);
+
+        if (socket_stress_test < 0)
+        {
+            printf("Failed to connect to server for stress testing\r\n");
             return ERROR;
         }
     }
@@ -133,79 +163,103 @@ int main(int argc, char *argv[]) {
      * Finished all module initialization at this point
      */
 
-    if (verbose == 1) {
+    if (verbose == 1)
+    {
         printf(" | SVS initialized\r\n");
     }
 
-    if (verbose == 1) {
+    if (verbose == 1)
+    {
         printf(" | Beginning main simulation loop... \r\n");
     }
 
     /**************************************************************************/
     /* Main loop */
-    while (1) {
+    while (1)
+    {
         /*
-         * Interface
+         * Animation
          * Only step if a byte is received.
          */
-        if (tcp_synch_flag == 1) {
+        if (animate_flag == 1)
+        {
 
             /*
              * Transmit data
              */
 
-            // if (verbose == 1) {
-            //     printf(" | sent MSG_PING = 0x%02x\r\n", MSG_PING);
-            // }
-            // interface_send_tcp_message(socket, MSG_PING, 0.0);
-            interface_send_tcp_message(socket, MSG_STATE_X, svs.x);
-            interface_send_tcp_message(socket, MSG_STATE_Y, svs.y);
-            interface_send_tcp_message(socket, MSG_STATE_PSI, svs.psi);
-            interface_send_tcp_message(socket, MSG_TARGET_X, target_wp[0]);
-            interface_send_tcp_message(socket, MSG_TARGET_Y, target_wp[1]);
-            // interface_send_tcp_map(socket, 0x7B, map_get_map());
+            interface_send_tcp_message(socket_animate, MSG_STATE_X, svs.x);
+            interface_send_tcp_message(socket_animate, MSG_STATE_Y, svs.y);
+            interface_send_tcp_message(socket_animate, MSG_STATE_PSI, svs.psi);
+            interface_send_tcp_message(socket_animate, MSG_TARGET_X, target_wp[0]);
+            interface_send_tcp_message(socket_animate, MSG_TARGET_Y, target_wp[1]);
 
-            if (verbose == 1) {
+            if (verbose == 1)
+            {
                 printf(" | waiting for data byte...\r\n");
             }
 
-            status = interface_receive_byte(socket, verbose, t_out_sec, &data_new);
-            // interface_send_tcp_message(socket, MSG_PING, 0.0);
+            status = interface_receive_byte(socket_animate, verbose, t_out_sec, &data_new);
 
-            if (verbose == 1) {
+            if (verbose == 1)
+            {
                 printf(" | (data_new, data_old) = (%d, %d)\r\n", data_new,
                        data_old);
             }
 
-            /* Block */
-            // while (data_new == data_old) {
-
-            //     status = interface_receive_byte(socket, verbose, t_out_sec,
-            //     &data_new);
-
-            //     // if (status < 0) {
-            //     //     break;
-            //     // }
-            //     if (verbose == 1) {
-            //         if (ping_count % 100000 == 0) {
-            //             printf(". ");
-            //         }
-            //     }
-
-            //     ping_count++;
-            // }
-            if (verbose == 1) {
+            if (verbose == 1)
+            {
                 printf("\n | data = 0x%02x\r\n", data_new);
             }
 
-            if (data_new != data_old) {
+            if (data_new != data_old)
+            {
                 safe_to_integrate = 1;
-            } else {
+            }
+            else
+            {
                 safe_to_integrate = 0;
-                // sleep(1);
             }
 
             data_old = data_new;
+        }
+
+        if (stress_test == 1)
+        {
+
+            /*
+             * Transmit data
+             */
+            interface_send_tcp_message(socket_stress_test, MSG_STATE_PSI, svs.psi_dot);
+
+            // if (verbose == 1)
+            // {
+            //     printf(" | waiting for data byte...\r\n");
+            // }
+
+            // status = interface_receive_byte(socket_stress_test, verbose, t_out_sec, &data_new);
+
+            // if (verbose == 1)
+            // {
+            //     printf(" | (data_new, data_old) = (%d, %d)\r\n", data_new,
+            //            data_old);
+            // }
+
+            // if (verbose == 1)
+            // {
+            //     printf("\n | data = 0x%02x\r\n", data_new);
+            // }
+
+            // if (data_new != data_old)
+            // {
+            //     safe_to_integrate = 1;
+            // }
+            // else
+            // {
+            //     safe_to_integrate = 0;
+            // }
+
+            // data_old = data_new;
         }
 
         /*
@@ -217,13 +271,16 @@ int main(int argc, char *argv[]) {
          * Path planner logic here
          */
         cs_curr = controller_get_state();
-        if (cs_curr == CS_WAITING_FOR_NEXT_WP) {
+        if (cs_curr == CS_WAITING_FOR_NEXT_WP)
+        {
             planner_plan(p, map_get_map(), target_wp);
         }
 
-        if (cs_last != cs_curr) {
+        if (cs_last != cs_curr)
+        {
             cs_last = cs_curr;
-            if (verbose == 1) {
+            if (verbose == 1)
+            {
                 printf(" |__ New controller state = %s\r\n",
                        controller_get_state_str());
             }
@@ -240,7 +297,8 @@ int main(int argc, char *argv[]) {
         /*
          * Update model
          */
-        if (safe_to_integrate) {
+        if (safe_to_integrate)
+        {
             model_update(dt, steer_cmd, svs.spd, 0.0, 0.0);
             model_get_state(&svs);
 
@@ -253,13 +311,15 @@ int main(int argc, char *argv[]) {
              */
             printf(
                 "[t=%03.3f]: count=%d, cs= %d, x=%03.3f, y=%03.3f, psi=%03.3f, "
-                "steer_cmd=%03.3f, throttle_cmd=%03.3f, twp_x=%03.3f, "
+                "steer_cmd=%03.3f, speed=%03.3f, twp_x=%03.3f, "
                 "twp_y=%03.3f\r\n",
                 t, count, cs_curr, svs.x, svs.y, svs.psi, steer_cmd,
-                throttle_cmd, target_wp[0], target_wp[1]);
+                svs.spd, target_wp[0], target_wp[1]);
 
-            if (count >= max_step_num) {
-                if (verbose == 1) {
+            if (count >= max_step_num)
+            {
+                if (verbose == 1)
+                {
                     printf("Maximum step count reached %d/%d\r\n", count,
                            max_step_num);
                 }
@@ -268,8 +328,14 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    if (tcp_synch_flag == 1) {
-        interface_close_tcp_connection(socket);
+    if (animate_flag == 1)
+    {
+        interface_close_tcp_connection(socket_animate);
+    }
+
+    if (stress_test == 1)
+    {
+        interface_close_tcp_connection(socket_stress_test);
     }
 
     return status;

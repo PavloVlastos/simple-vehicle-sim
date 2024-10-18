@@ -53,7 +53,7 @@
 #define BASE_LENGTH (float)1.0           /* vehicle base length in meters */
 #define MIN_RUD_ANG (float)(-0.2 * M_PI) /* minimum rudder angle in radians */
 #define MAX_RUD_ANG (float)(0.2 * M_PI)  /* maximum rudder angle in radians  */
-#define MAX_ABS_SPD (float)(7.0)         /* maximum vehicle speed in m/s */
+#define MAX_ABS_SPD (float)(50.0)         /* maximum vehicle speed in m/s */
 
 /*
  * Datatypes

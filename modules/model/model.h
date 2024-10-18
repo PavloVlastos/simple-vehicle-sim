@@ -15,7 +15,7 @@ typedef union
         float y;
         float spd;
         float psi;
-        float psi_rate;
+        float psi_dot;
     };
     float vector[STATE_LEN];
 } state_t;
@@ -88,7 +88,7 @@ int model_set_psi(float psi);
 /**
  *
  */
-int model_set_psi_rate(float psi_rate);
+int model_set_psi_dot(float psi_dot);
 
 /**
  *

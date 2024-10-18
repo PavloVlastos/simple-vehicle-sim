@@ -9,9 +9,9 @@ Run the following commands to build simple-vehicle-sim using a bash script
 1. `bash quick_build`
 2. `./build/svs` Use `-h` for options
 
-    Example command: `python visualize/visualizes_sim.py` This must be started first to start the tcp server if the `-t` option for `svs` is used (see below).
+    Example command: `python visualize/visualizes_sim.py` This must be started first to start the tcp server if the `-a` option for `svs` is used (see below).
 
-    In another console: `./build/svs --kp 1.0 -v -m 1000 -t --speed 5.0 --dt 0.05`
+    In another console: `./build/svs --kp 1.0 -v -m 1000 -a --speed 15.0 --dt 0.05 -p 1`
 
 ### Build with `make` 
 Here are the commands to build simple-vehicle-sim using `make`
@@ -19,7 +19,7 @@ Here are the commands to build simple-vehicle-sim using `make`
 2. `make clean`
 3. `make` \
 3.1 (optional) in a seperate terminal run `python visualize/visualizes_sim.py`
-4. './bin/main -t -m 10000 --kp 1.1 -p 1`
+4. './bin/main -a -m 10000 --kp 1.1 -p 1`
 
 ### Build with `cmake` 
 Run the following commands to build simple-vehicle-sim using `cmake`
@@ -29,7 +29,7 @@ Run the following commands to build simple-vehicle-sim using `cmake`
 4. `cmake ..`
 5. `make` \
 5.1 (optional) in a seperate terminal run `python visualize/visualizes_sim.py`
-6. `./svs --kp 1.0 -v -m 1000 -t --speed 5.0 --dt 0.05`
+6. `./svs --kp 1.0 -v -m 1000 -a --speed 5.0 --dt 0.05`
 
 ## IKOS
 To use IKOS for static analysis:

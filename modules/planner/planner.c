@@ -15,7 +15,6 @@
 /*
  * Module-level variables
  */
-static PLAN_payload_t path;
 static planner_t planner;
 static float wp_test_path[NUM_TEST_WPS][DIM2] = {
     {0.0, 0.0}, {1.0, 2.0}, {10.0, 4.0}, {-1.0, 4.0}, {-10.0, -10.0}};

@@ -65,9 +65,9 @@ int model_update(const float dt, float rudder_angle, float speed, float vx_dist,
     int_st.x += (int_st.spd * sin(int_st.psi) + vx_dist) * dt;
     int_st.y += (int_st.spd * cos(int_st.psi) + vy_dist) * dt;
 
-    int_st.psi_rate = 0.0;
-    int_st.psi_rate = (-1.0) * int_st.spd * tan(rudder_angle) / base_length;
-    int_st.psi += int_st.psi_rate * dt;
+    int_st.psi_dot = 0.0;
+    int_st.psi_dot = (-1.0) * int_st.spd * tan(rudder_angle) / base_length;
+    int_st.psi += int_st.psi_dot * dt;
 
     /*
      * Wrap angle
