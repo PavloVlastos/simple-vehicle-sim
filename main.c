@@ -52,6 +52,7 @@ int main(int argc, char *argv[])
     uint8_t data_old = 0;
     uint8_t blocked = IS_NOT_BLOCKED;
     uint8_t safe_to_integrate = 1;
+    float rx_stress = 0.0;
 
     int status = SUCCESS;
 
@@ -150,7 +151,7 @@ int main(int argc, char *argv[])
             printf(" |__ Initializing TCP interface for stress test ...\r\n");
         }
 
-        socket_stress_test = interface_open_tcp_connection("127.0.0.1", 9201);
+        socket_stress_test = interface_open_tcp_connection("127.0.0.1", 9900);
 
         if (socket_stress_test < 0)
         {
@@ -224,6 +225,9 @@ int main(int argc, char *argv[])
             data_old = data_new;
         }
 
+        /*
+         * Stress-test logic
+         */
         if (stress_test == 1)
         {
 
@@ -232,18 +236,19 @@ int main(int argc, char *argv[])
              */
             interface_send_tcp_message(socket_stress_test, MSG_STATE_PSI, svs.psi_dot);
 
-            // if (verbose == 1)
-            // {
-            //     printf(" | waiting for data byte...\r\n");
-            // }
+            if (verbose == 1)
+            {
+                printf(" | waiting for input float(s) from AdaStress...\r\n");
+            }
 
-            // status = interface_receive_byte(socket_stress_test, verbose, t_out_sec, &data_new);
+            status = interface_receive_float(socket_stress_test, verbose, t_out_sec, 
+                                             &rx_stress);
 
-            // if (verbose == 1)
-            // {
-            //     printf(" | (data_new, data_old) = (%d, %d)\r\n", data_new,
-            //            data_old);
-            // }
+            if (verbose == 1)
+            {
+                printf(" | rx_stress = %f\r\n", rx_stress,
+                       data_old);
+            }
 
             // if (verbose == 1)
             // {
@@ -311,9 +316,10 @@ int main(int argc, char *argv[])
              */
             printf(
                 "[t=%03.3f]: count=%d, cs= %d, x=%03.3f, y=%03.3f, psi=%03.3f, "
+                "psi_dot=%03.3f,"
                 "steer_cmd=%03.3f, speed=%03.3f, twp_x=%03.3f, "
                 "twp_y=%03.3f\r\n",
-                t, count, cs_curr, svs.x, svs.y, svs.psi, steer_cmd,
+                t, count, cs_curr, svs.x, svs.y, svs.psi, svs.psi_dot, steer_cmd,
                 svs.spd, target_wp[0], target_wp[1]);
 
             if (count >= max_step_num)

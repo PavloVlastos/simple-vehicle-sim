@@ -1,16 +1,6 @@
 #ifndef INTERFACE_H
 #define INTERFACE_H
 
-#include <arpa/inet.h>
-#include <errno.h>
-#include <netinet/in.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/socket.h>
-#include <sys/time.h>  // Required for struct timeval
-#include <unistd.h>
 
 #include "common.h"
 #include "map.h"
@@ -38,10 +28,20 @@ int interface_send_tcp_message(int sock, uint8_t id, float value);
 /**
  * @param[in] sock The socket number
  * @param[in] verbose A verbose flag
+ * @param[in] timeout_sec The timeout in seconds
  * @param[out] data A pointer do a data byte
  */
 int interface_receive_byte(int sock, uint8_t verbose, int timeout_sec,
                            uint8_t *data);
+
+/**
+ * @param[in] sock The socket number
+ * @param[in] verbose A verbose flag
+ * @param[in] timeout_sec The timeout in seconds
+ * @param[out] data A pointer do a float
+ */
+int interface_receive_float(int sock, uint8_t verbose, int timeout_sec, 
+                            float *data);
 
 /**
  * @param[in] sock The socket number

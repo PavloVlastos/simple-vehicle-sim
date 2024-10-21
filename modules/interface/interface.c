@@ -1,4 +1,14 @@
 #include "interface.h"
+#include <arpa/inet.h> // For ntohl()
+#include <errno.h>
+#include <netinet/in.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/socket.h>
+#include <sys/time.h> // Required for struct timeval
+#include <unistd.h>
 
 static uint8_t large_message[MAP_DFLT_NUM_BYTES_PER_MAP + 1] = {0};
 
@@ -125,6 +135,69 @@ int interface_receive_byte(int sock, uint8_t verbose, int timeout_sec,
             }
         }
         return ERROR;
+    }
+
+    return SUCCESS;
+}
+
+int interface_receive_float(int sock, uint8_t verbose, int timeout_sec, 
+                            float *data)
+{
+    ssize_t bytes_received;
+    struct timeval timeout;
+    uint32_t int_value;
+    uint8_t buffer[4];
+
+    timeout.tv_sec = timeout_sec; // Timeout in seconds
+    timeout.tv_usec = 0;          // 0 microseconds (no partial seconds)
+
+    if (setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, (const char *)&timeout, sizeof(timeout)) < 0)
+    {
+        if (verbose)
+        {
+            printf(" |__ Interface: Failed to set socket timeout\r\n");
+        }
+        return ERROR;
+    }
+
+    bytes_received = recv(sock, buffer, 4, 0);
+    if (bytes_received <= 0)
+    {
+        if (verbose)
+        {
+            if (bytes_received == 0)
+            {
+                printf(" |__ Interface: Connection closed by peer\r\n");
+            }
+            else if (errno == EWOULDBLOCK || errno == EAGAIN)
+            {
+                printf(" |__ Interface: Receive timeout\r\n");
+            }
+            else
+            {
+                printf(" |__ Interface: Receive failed\r\n");
+            }
+        }
+        return ERROR;
+    }
+
+    if (bytes_received != 4)
+    {
+        if (verbose)
+        {
+            printf(" |__ Interface: Incomplete float received\r\n");
+        }
+        return ERROR;
+    }
+
+    memcpy(&int_value, buffer, sizeof(int_value));
+    int_value = ntohl(int_value); // Convert from network byte order
+
+    memcpy(data, &int_value, sizeof(float));
+
+    if (verbose)
+    {
+        printf(" |__ Interface: Received float: %f\r\n", *data);
     }
 
     return SUCCESS;
