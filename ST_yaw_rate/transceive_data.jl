@@ -60,8 +60,10 @@ function send_float(host::String, port::Int, value::Float32)
     try
         # Convert the float to 4 bytes and send it over the socket
         bytes = float32_to_bytes(value)
+        println("About to send bytes: ", bytes)
         write(sock, bytes)
         flush(sock)  # Ensure the data is sent immediately
+        println("Successfully sent float: $value as bytes: ", bytes)
         println("Sent float: $value as bytes: ", bytes)
     finally
         close(sock)  # Close the socket

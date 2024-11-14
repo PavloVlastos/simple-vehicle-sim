@@ -17,12 +17,9 @@ x_wps = 0.0
 y_wps = 0.0
 heading_angle = 0.0
 last_angle = 0.0
-x_min = -20.0
-x_max = 20.0
-y_min = -20.0
-y_max = 20.0
 data = 0x01
 data_old = 0x00
+map_scale = 1.25
 
 t_new = time.time()
 t_old = t_new
@@ -35,6 +32,11 @@ msg_state_psi = None
 msg_state_x = None
 msg_state_y = None
 msg_map = None
+
+map_min_x = None
+map_min_y = None
+map_max_x = None
+map_max_y = None
 
 N_BYTES_ID = 1
 N_BYTES_SMALL_MSG = 4
@@ -137,18 +139,23 @@ def init_plot_vehicle():
     global last_angle
     global x_wps
     global y_wps
+    global map_min_x
+    global map_min_y
+    global map_max_x
+    global map_max_y
 
     vehicle_marker = matplotlib.markers.MarkerStyle("^")
     vehicle_marker._transform.rotate(last_angle)
     vehicle_marker._transform.rotate(-heading_angle)
     last_angle = heading_angle
 
-    fig, ax = plt.subplots()
+    fig, ax = plt.subplots(figsize=(7, 7))
     ax.set_title("Vehicle Position")
     ax.set_xlabel("x (meters)")
     ax.set_ylabel("y (meters)")
-    ax.set_xlim([x_min, x_max])
-    ax.set_ylim([y_min, y_max])
+    ax.set_xlim([map_scale*map_min_x, map_scale*map_max_x])
+    ax.set_ylim([map_scale*map_min_y, map_scale*map_max_y])
+    ax.set_aspect('equal')
 
     waypoints = ax.plot(
         x_wps,
@@ -373,12 +380,66 @@ def read_message_ids():
     except FileNotFoundError:
         print(f"File {common_h_path} not found.")
 
+def read_map_info():
+    global map_min_x
+    global map_min_y
+    global map_max_x
+    global map_max_y
+
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    map_h_path = os.path.join(current_dir, "..", "modules", "map", "map.h")
+
+    try:
+        with open(map_h_path, "r") as file:
+            content = file.read()
+
+        # MAP_DFLT_X_MIN
+        match = re.search(r"#define\s+MAP_DFLT_X_MIN\s+\(float\)\(([-+]?\d*\.?\d+)\)", content)
+        if match:
+            map_min_x = match.group(1)  # Set the global variable with the value
+            map_min_x = float(map_min_x)
+            print(f"MAP_DFLT_X_MIN is defined as:   {map_min_x}")
+        else:
+            print("MAP_DFLT_X_MIN not found in the file.")
+
+        # MAP_DFLT_Y_MIN
+        match = re.search(r"#define\s+MAP_DFLT_Y_MIN\s+\(float\)\(([-+]?\d*\.?\d+)\)", content)
+        if match:
+            map_min_y = match.group(1)  # Set the global variable with the value
+            map_min_y = float(map_min_y)
+            print(f"MAP_DFLT_Y_MIN is defined as:   {map_min_y}")
+        else:
+            print("MAP_DFLT_Y_MIN not found in the file.")
+
+        # MAP_DFLT_X_MAX
+        match = re.search(r"#define\s+MAP_DFLT_X_MAX\s+\(float\)\(([-+]?\d*\.?\d+)\)", content)
+        if match:
+            map_max_x = match.group(1)  # Set the global variable with the value
+            map_max_x = float(map_max_x)
+            print(f"MAP_DFLT_X_MAX is defined as:   {map_max_x}")
+        else:
+            print("MAP_DFLT_X_MAX not found in the file.")
+
+        # MAP_DFLT_Y_MAX
+        match = re.search(r"#define\s+MAP_DFLT_Y_MAX\s+\(float\)\(([-+]?\d*\.?\d+)\)", content)
+        if match:
+            map_max_y = match.group(1)  # Set the global variable with the value
+            map_max_y = float(map_max_y)
+            print(f"MAP_DFLT_Y_MAX is defined as:   {map_max_y}")
+        else:
+            print("MAP_DFLT_Y_MAX not found in the file.")
+
+    except FileNotFoundError:
+        print(f"File {map_h_path} not found.")
+
 
 if __name__ == "__main__":
     print("Starting simulation visualizer...")
     print("Reading in message IDs...")
-
     read_message_ids()
+
+    print("Reading in map dimensions...")
+    read_map_info()
 
     print("Starting simulation visualizer server")
 

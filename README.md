@@ -21,6 +21,9 @@ Here are the commands to build simple-vehicle-sim using `make`
 3.1 (optional) in a seperate terminal run `python visualize/visualizes_sim.py`
 4. './bin/main -a -m 10000 --kp 1.1 -p 1`
 
+Another example of running the main program is:\
+`./bin/main --kp 1.0 -v -m 10000 --speed 15.0 --dt 0.1 -p 1 -a`
+
 ### Build with `cmake` 
 Run the following commands to build simple-vehicle-sim using `cmake`
 1. `cd simple-vehilce-sim`

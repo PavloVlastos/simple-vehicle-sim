@@ -2,8 +2,11 @@
 CC = gcc
 
 # Define the compilation flags
-CFLAGS = -std=c11 -O0 -Wall -g -I ../ -I../modules -I../modules/common \
-	-I../modules/interface -I../modules/lin_alg -I../modules/model \
+CFLAGS = -std=c11 -O0 -Wall -g -I ../ \
+	-I../modules -I../modules/common \
+	-I../modules/interface_visualize \
+	-I../modules/interface_stress \
+	-I../modules/lin_alg -I../modules/model \
 	-I../modules/controller -I../modules/planner -I obj \
 	-I../modules/parse_args -I../modules/map 
 
@@ -22,7 +25,8 @@ EXEC = $(BIN_DIR)/$(MAIN_FILE_NAME)
 # Define the source files
 CSRCS = $(SRC_DIR)/controller/controller.c \
 	$(SRC_DIR)/model/model.c \
-	$(SRC_DIR)/interface/interface.c \
+	$(SRC_DIR)/interface_visualize/interface_visualize.c \
+	$(SRC_DIR)/interface_stress/interface_stress.c \
 	$(SRC_DIR)/lin_alg/lin_alg.c \
 	$(SRC_DIR)/common/common.c \
 	$(SRC_DIR)/parse_args/parse_args.c \
@@ -33,7 +37,8 @@ CSRCS = $(SRC_DIR)/controller/controller.c \
 OBJS =  $(OBJ_DIR)/$(MAIN_FILE_NAME).o \
 	$(OBJ_DIR)/controller.o \
 	$(OBJ_DIR)/model.o \
-	$(OBJ_DIR)/interface.o \
+	$(OBJ_DIR)/interface_visualize.o \
+	$(OBJ_DIR)/interface_stress.o \
 	$(OBJ_DIR)/lin_alg.o \
 	$(OBJ_DIR)/common.o \
 	$(OBJ_DIR)/parse_args.o \
