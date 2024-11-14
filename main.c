@@ -3,6 +3,7 @@
 
 #include "common.h"
 #include "controller.h"
+#include "interface_stress.h"
 #include "interface_visualize.h"
 #include "lin_alg.h"
 #include "map.h"
@@ -26,7 +27,7 @@
 int main(int argc, char *argv[]) {
   uint8_t animate_flag = 0;
   uint8_t stress_test = 0;
-  int max_step_num = 1;
+  int max_step_num = 0;
   uint8_t verbose = 0;
 
   float dt = 0.01;
@@ -75,8 +76,8 @@ int main(int argc, char *argv[]) {
   kd = parse_args_get_kd();
   p = parse_args_get_plan();
 
-  if (verbose == 1) {
-    printf(" | Initializing svs-sim...\r\n");
+  if (verbose) {
+    printf(" | Initializing simple vehicle simulation...\r\n");
     printf(" |__ verbose        = %d\r\n", verbose);
     printf(" |__ animate_flag   = %d\r\n", animate_flag);
     printf(" |__ stress_test    = %d\r\n", stress_test);
@@ -90,7 +91,7 @@ int main(int argc, char *argv[]) {
   }
 
   /**************************************************************************/
-  if (verbose == 1) {
+  if (verbose) {
     printf(" | Initializing Simple Vehicle Simulation (SVS) ...\r\n");
   }
   state_t svs;
@@ -100,30 +101,30 @@ int main(int argc, char *argv[]) {
   svs.spd = spd;
   svs.psi = 0.25 * M_PI;
 
-  if (verbose == 1) {
+  if (verbose) {
     printf(" |__ Initializing controller ...\r\n");
   }
   controller_init(verbose);
 
-  if (verbose == 1) {
+  if (verbose) {
     printf(" |__ Initializing model ...\r\n");
   }
   model_init(&svs);
 
-  if (verbose == 1) {
+  if (verbose) {
     printf(" |__ Initializing map ...\r\n");
   }
   map_init(MAP_DFLT_X_MIN, MAP_DFLT_X_MAX, MAP_DFLT_Y_MIN, MAP_DFLT_Y_MAX,
            MAP_DFLT_DIV_PER_CELL);
 
-  if (verbose == 1) {
+  if (verbose) {
     printf(" |__ Initializing planner ...\r\n");
   }
   planner_init(verbose, p);
 
   int socket_animate = ERROR;
-  if (animate_flag == 1) {
-    if (verbose == 1) {
+  if (animate_flag) {
+    if (verbose) {
       printf(" |__ Initializing TCP interface_visualize for animation ...\r\n");
     }
 
@@ -137,8 +138,8 @@ int main(int argc, char *argv[]) {
   }
 
   int socket_stress_test = ERROR;
-  if (stress_test == 1) {
-    if (verbose == 1) {
+  if (stress_test) {
+    if (verbose) {
       printf(" |__ Initializing TCP interface_stress for stress test ...\r\n");
     }
 
@@ -155,11 +156,11 @@ int main(int argc, char *argv[]) {
    * Finished all module initialization at this point
    */
 
-  if (verbose == 1) {
+  if (verbose) {
     printf(" | SVS initialized\r\n");
   }
 
-  if (verbose == 1) {
+  if (verbose) {
     printf(" | Beginning main simulation loop... \r\n");
   }
 
@@ -170,7 +171,7 @@ int main(int argc, char *argv[]) {
      * Animation
      * Only step if a byte is received.
      */
-    if (animate_flag == 1) {
+    if (animate_flag) {
 
       /*
        * Transmit data
@@ -184,18 +185,18 @@ int main(int argc, char *argv[]) {
       interface_vis_send_tcp_message(socket_animate, MSG_TARGET_Y,
                                      target_wp[1]);
 
-      if (verbose == 1) {
+      if (verbose) {
         printf(" | waiting for data byte...\r\n");
       }
 
       status = interface_vis_receive_byte(socket_animate, verbose, t_out_sec,
                                           &data_new);
 
-      if (verbose == 1) {
+      if (verbose) {
         printf(" | (data_new, data_old) = (%d, %d)\r\n", data_new, data_old);
       }
 
-      if (verbose == 1) {
+      if (verbose) {
         printf("\n | data = 0x%02x\r\n", data_new);
       }
 
@@ -211,41 +212,24 @@ int main(int argc, char *argv[]) {
     /*
      * Stress-test logic
      */
-    if (stress_test == 1) {
+    if (stress_test) {
 
       /*
        * Transmit data
        */
-      interface_stress_send_tcp_message(socket_stress_test, MSG_STATE_PSI,
+      interface_stress_send_tcp_message(socket_stress_test, MSG_STATE_PSI_DOT,
                                         svs.psi_dot);
 
-      if (verbose == 1) {
+      if (verbose) {
         printf(" | waiting for input float(s) from AdaStress...\r\n");
       }
 
       status = interface_stress_receive_float(socket_stress_test, verbose,
                                               t_out_sec, &rx_stress);
 
-      if (verbose == 1) {
-        printf(" | rx_stress = %f, socket_stress_test = %d\r\n", rx_stress,
-               socket_stress_test);
+      if (verbose) {
+        printf(" | received rx_stress = %f, from AdaStress\r\n", rx_stress);
       }
-
-      // if (verbose == 1)
-      // {
-      //     printf("\n | data = 0x%02x\r\n", data_new);
-      // }
-
-      // if (data_new != data_old)
-      // {
-      //     safe_to_integrate = 1;
-      // }
-      // else
-      // {
-      //     safe_to_integrate = 0;
-      // }
-
-      // data_old = data_new;
     }
 
     /*
@@ -263,7 +247,7 @@ int main(int argc, char *argv[]) {
 
     if (cs_last != cs_curr) {
       cs_last = cs_curr;
-      if (verbose == 1) {
+      if (verbose) {
         printf(" |__ New controller state = %s\r\n",
                controller_get_state_str());
       }
@@ -276,6 +260,13 @@ int main(int argc, char *argv[]) {
                       controller_output);
     steer_cmd = controller_output[0];
     throttle_cmd = controller_output[1];
+
+    /*
+     * AdaStress effect here
+     */
+    if (stress_test) {
+      steer_cmd += rx_stress;
+    }
 
     /*
      * Update model
@@ -298,8 +289,8 @@ int main(int argc, char *argv[]) {
              t, count, cs_curr, svs.x, svs.y, svs.psi, svs.psi_dot, steer_cmd,
              svs.spd, target_wp[0], target_wp[1]);
 
-      if (count >= max_step_num) {
-        if (verbose == 1) {
+      if ((count >= max_step_num) && (max_step_num > 0)) {
+        if (verbose) {
           printf("Maximum step count reached %d/%d\r\n", count, max_step_num);
         }
         break;
@@ -307,11 +298,11 @@ int main(int argc, char *argv[]) {
     }
   }
 
-  if (animate_flag == 1) {
+  if (animate_flag) {
     interface_vis_close_tcp_connection(socket_animate);
   }
 
-  if (stress_test == 1) {
+  if (stress_test) {
     interface_vis_close_tcp_connection(socket_stress_test);
   }
 

@@ -1,89 +1,91 @@
 using Sockets
 using Printf
 
+rx_float32_value = 0.0
+rx_error_thresh = 1e10
+sock = 0
+const MSG_STATE_PSI_DOT = 0x74
+
+function transceive_init(ip::String, port::Int)
+	server = listen(PORT_STRESS)
+	if !isopen(server)
+		println("transceive_data.jl: Failed to listen to $ip:$port")
+	end
+
+	global sock = accept(server)
+
+	if !isopen(sock)
+		println("transceive_data.jl: Failed to accept $server")
+	end
+
+	return sock
+end
+
 # Convert UInt32 from network byte order (big-endian) to host byte order
 function ntohl(x::UInt32)
-    return bswap(x)
+	return bswap(x)
 end
 
 # Convert 4 bytes to Float32 with endianness handling
 function bytes_to_float32(float_bytes::Vector{UInt8})
-    uint_value = reinterpret(UInt32, float_bytes)[1]
-    host_value = uint_value
-    return reinterpret(Float32, host_value)
+	uint_value = reinterpret(UInt32, float_bytes)[1]
+	host_value = uint_value
+	return reinterpret(Float32, host_value)
 end
 
-# Function to handle a client connection (read & print message)
-function handle_client(sock::TCPSocket)
-    try
-        # Loop to receive messages continuously from the same connection
-        while true
+function transceive_read_bytes_from_simulation()
+	try
+		data = read(sock, 5)
 
-            data = read(sock, 5)
+		if length(data) == 5
 
-            if length(data) == 5
-                println("Raw bytes received: ", string(data))
+			message_id = data[1]  # First byte as message ID
 
-                message_id = data[1]  # First byte as message ID
+            if message_id == MSG_STATE_PSI_DOT
                 float_bytes = data[2:5]  # Remaining 4 bytes as float bytes
-                float_value = bytes_to_float32(float_bytes)
-
-                s = @sprintf("Received Message ID: %d, Float Bytes: %s, Float Value: %.6f",
-               message_id, string(float_bytes), Float64(float_value))
-               println(s)
-            else
-                @sprintf("Error: Incomplete message received.")
-                break  
+                f = bytes_to_float32(float_bytes)
+                if abs(f) > rx_error_thresh
+                    # println("transceive_data.jl: value is too large: f = $f")
+                    return rx_float32_value
+                else
+                    global rx_float32_value = f
+                end
             end
-        end
-    catch e
-        println("Connection error: ", e)
-    finally
-        close(sock)
-    end
+		else
+			println("transceive_data.jl: Incomplete message received, bytes received: ", string(data))
+			close(sock)
+		end
+	catch e
+		println("transceive_data.jl: Connection error: ", e)
+	end
+
+    return rx_float32_value
+end
+
+function transceive_get_rx_float32()
+	return rx_float32_value
 end
 
 
 # Convert a Float32 to 4 bytes (in network byte order)
 function float32_to_bytes(value::Float32)::Vector{UInt8}
-    # Reinterpret the float as a UInt32
-    int_value = reinterpret(UInt32, value)
-    # Convert to network byte order (big-endian)
-    network_value = bswap(int_value)
-    # Convert the UInt32 to 4 bytes
-    return reinterpret(UInt8, [network_value])
+	# Reinterpret the float as a UInt32
+	int_value = reinterpret(UInt32, value)
+	# Convert to network byte order (big-endian)
+	network_value = bswap(int_value)
+	# Convert the UInt32 to 4 bytes
+	return reinterpret(UInt8, [network_value])
 end
 
 # Send a Float32 value over TCP to the specified host and port
-function send_float(host::String, port::Int, value::Float32)
-    sock = connect(host, port)  # Connect to the C program
-    try
-        # Convert the float to 4 bytes and send it over the socket
-        bytes = float32_to_bytes(value)
-        println("About to send bytes: ", bytes)
-        write(sock, bytes)
-        flush(sock)  # Ensure the data is sent immediately
-        println("Successfully sent float: $value as bytes: ", bytes)
-        println("Sent float: $value as bytes: ", bytes)
-    finally
-        close(sock)  # Close the socket
-    end
+function transceive_send_float(value::Float32)
+	# Convert the float to 4 bytes and send it over the socket
+	bytes = float32_to_bytes(value)
+	try
+		write(sock, bytes)
+		flush(sock)
+	catch e
+		println("transceive_data.jl: Failed to send float: $value as bytes: ", bytes)
+	end
 end
 
-function start_server(ip::String, port::Int)
-    server = listen(port)  
-    println("Server listening on $ip:$port...")
-
-    while true
-        sock = accept(server) 
-        println("Client connected.")
-        @async handle_client(sock)
-    end
-
-    println("Error: closing server prematurely")
-
-    close(server)  # Close the server socket
-end
-
-# # Start the server
-# start_server("0.0.0.0", 65432)
