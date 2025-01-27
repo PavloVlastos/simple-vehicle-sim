@@ -9,7 +9,7 @@ Run the following commands to build simple-vehicle-sim using a bash script
 1. `bash quick_build`
 2. `./build/svs` Use `-h` for options
 
-    Example command: `python visualize/visualizes_sim.py` This must be started first to start the tcp server if the `-a` option for `svs` is used (see below).
+    Example command: `python visualize/visualize_sim.py` This must be started first to start the tcp server if the `-a` option for `svs` is used (see below).
 
     In another console: `./build/svs --kp 1.0 -v -m 1000 -a --speed 15.0 --dt 0.05 -p 1`
 

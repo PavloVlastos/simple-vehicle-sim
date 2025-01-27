@@ -5,7 +5,8 @@ set(CMAKE_BUILD_TYPE Debug)
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/modules/common)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/modules/controller)
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/modules/interface)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/modules/interface_visualize)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/modules/interface_stress)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/modules/lin_alg)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/modules/model)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/modules/planner)
@@ -15,7 +16,8 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/modules/parse_args)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/modules)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/modules/common)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/modules/controller)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/modules/interface)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/modules/interface_visualize)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/modules/interface_stress)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/modules/lin_alg)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/modules/model)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/modules/planner)
@@ -25,7 +27,8 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/modules/parse_args)
 set(sources
     ${CMAKE_CURRENT_SOURCE_DIR}/modules/common/common.c
     ${CMAKE_CURRENT_SOURCE_DIR}/modules/controller/controller.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/modules/interface/interface.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/modules/interface_visualize/interface_visualize.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/modules/interface_stress/interface_stress.c
     ${CMAKE_CURRENT_SOURCE_DIR}/modules/lin_alg/lin_alg.c
     ${CMAKE_CURRENT_SOURCE_DIR}/modules/model/model.c
     ${CMAKE_CURRENT_SOURCE_DIR}/modules/planner/planner.c
