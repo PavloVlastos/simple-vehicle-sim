@@ -2,8 +2,10 @@
 CC = gcc
 # Define the compilation flags
 CFLAGS = -std=c11 -O0 -Wall \
-	-I ../modules -I ../modules/common \
-	-I ../modules/lin_alg -I ../modules/model
+	-I ../modules \
+	-I ../modules/common \
+	-I ../modules/lin_alg \
+	-I ../modules/model
 
 # Define coverage flags
 GCOV_FLAGS = -fprofile-arcs -ftest-coverage
@@ -28,7 +30,6 @@ $(TARGET): $(OBJS)
 	@mkdir -p $(BIN_DIR)
 	$(CC) -o $(BIN_DIR)/$(TARGET) $(OBJS) $(LDFLAGS) $(GCOV_FLAGS)
 	@mv $(OBJ_DIR)/*.gcno $(GCOV_DIR)/ \
-	@mv $(OBJ_DIR)/*.gcda $(GCOV_DIR)/
 
 $(OBJ_DIR)/UT_model.o: UT_model.c
 	@mkdir -p $(OBJ_DIR) $(GCOV_DIR)
