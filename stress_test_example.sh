@@ -11,8 +11,7 @@ python visualize/visualize_sim.py &
 
 sleep 3
 
-./build/svs --kp 1.5 -v -m 1000 -a --speed 10.0 --dt 0.01 -p 1 
-#--stress-test
+./build/svs --kp 1.5 -v -m 10000 -a --speed 10.0 --dt 0.01 -p 1 --stress-test
 
 BINARY_PID=$!
 kill $BINARY_PID

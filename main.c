@@ -28,6 +28,7 @@ int main(int argc, char *argv[]) {
   uint8_t animate_flag = 0;
   uint8_t stress_test = 0;
   int max_step_num = 0;
+  uint8_t help_option = 0;
   uint8_t verbose = 0;
 
   float dt = 0.01;
@@ -55,6 +56,7 @@ int main(int argc, char *argv[]) {
   uint8_t blocked = IS_NOT_BLOCKED;
   uint8_t safe_to_integrate = 1;
   float rx_stress = 0.0;
+  float rx_stress_old = 0.0;
 
   int status = SUCCESS;
 
@@ -66,6 +68,7 @@ int main(int argc, char *argv[]) {
   /**************************************************************************/
   parse_args(argc, argv);
 
+  help_option = parse_args_is_help();
   verbose = parse_args_is_verbose();
   animate_flag = parse_args_is_animate();
   stress_test = parse_args_is_stress_test();
@@ -76,8 +79,13 @@ int main(int argc, char *argv[]) {
   kd = parse_args_get_kd();
   p = parse_args_get_plan();
 
+  if (help_option) {
+    return 0;
+  }
+
   if (verbose) {
     printf(" | Initializing simple vehicle simulation...\r\n");
+    printf(" |__ help           = %d\r\n", help_option);
     printf(" |__ verbose        = %d\r\n", verbose);
     printf(" |__ animate_flag   = %d\r\n", animate_flag);
     printf(" |__ stress_test    = %d\r\n", stress_test);
@@ -227,6 +235,36 @@ int main(int argc, char *argv[]) {
       status = interface_stress_receive_float(socket_stress_test, verbose,
                                               t_out_sec, &rx_stress);
 
+      if (status != SUCCESS) {
+        rx_stress = 0;
+      }
+      rx_stress_old = rx_stress;
+
+      status = interface_stress_receive_reset_cmd(socket_stress_test, verbose,
+                                                  t_out_sec);
+
+      if (status == RESET) {
+
+        if (verbose) {
+          printf(" |__ Re-initializing controller ...\r\n");
+        }
+        controller_init(verbose);
+
+        if (verbose) {
+          printf(" |__ Re-initializing model ...\r\n");
+        }
+        svs.x = MAP_DFLT_X_MIN;
+        svs.y = MAP_DFLT_Y_MIN;
+        svs.spd = spd;
+        svs.psi = 0.25 * M_PI;
+        model_init(&svs);
+
+        if (verbose) {
+          printf(" |__ Re-initializing planner ...\r\n");
+        }
+        planner_init(verbose, p);
+      }
+
       if (verbose) {
         printf(" | received rx_stress = %f, from AdaStress\r\n", rx_stress);
       }
@@ -283,7 +321,7 @@ int main(int argc, char *argv[]) {
        * Print and/or save data
        */
       printf("[t=%03.3f]: count=%d, cs= %d, x=%03.3f, y=%03.3f, psi=%03.3f, "
-             "psi_dot=%03.3f,"
+             "psi_dot=%03.3f, "
              "steer_cmd=%03.3f, speed=%03.3f, twp_x=%03.3f, "
              "twp_y=%03.3f\r\n",
              t, count, cs_curr, svs.x, svs.y, svs.psi, svs.psi_dot, steer_cmd,

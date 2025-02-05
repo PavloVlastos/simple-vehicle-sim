@@ -27,7 +27,9 @@ int controller_init(int verbose) {
         printf(" |______ DIM4 = %d\r\n", DIM4);
         printf(" |______ DIM2 = %d\r\n", DIM2);
     }
-
+    
+    controller_state = CS_WAITING_FOR_NEXT_WP;
+    
     if (verbose == 1) {
         printf(" |____ finished controller init\r\n");
     }

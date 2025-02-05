@@ -62,8 +62,8 @@ int interface_stress_send_tcp_message(int sock, uint8_t id, float value) {
   return SUCCESS;
 }
 
-int interface_stress_receive_byte(int sock, uint8_t verbose, int timeout_sec,
-                                  uint8_t *data) {
+int interface_stress_receive_cmd_byte(int sock, uint8_t verbose,
+                                      int timeout_sec, uint8_t *data) {
   ssize_t bytes_received;
   struct timeval timeout;
   int32_t status = 0;
@@ -95,6 +95,103 @@ int interface_stress_receive_byte(int sock, uint8_t verbose, int timeout_sec,
       }
     }
     return ERROR;
+  }
+
+  return SUCCESS;
+}
+
+int interface_stress_receive_reset_cmd(int sock, uint8_t verbose,
+                                       int timeout_sec) {
+  uint8_t b = 0;
+
+  enum cmd_parse_state_e {
+    CMD_PARSE_STATE_0 = 0,
+    CMD_PARSE_STATE_1,
+    CMD_PARSE_STATE_2,
+    CMD_PARSE_STATE_3,
+    CMD_PARSE_STATE_4,
+    CMD_PARSE_STATE_5,
+    CMD_PARSE_STATE_6,
+    CMD_PARSE_STATE_7
+  };
+
+  typedef enum cmd_parse_state_e cmd_parse_state_t;
+
+  cmd_parse_state_t state_new = CMD_PARSE_STATE_0;
+  cmd_parse_state_t state_old = CMD_PARSE_STATE_1;
+
+  int status = ERROR;
+
+  while (state_new != state_old) {
+    state_old = state_new;
+    status = interface_stress_receive_cmd_byte(sock, verbose, timeout_sec, &b);
+    if (status == SUCCESS) {
+      switch (state_new) {
+      case CMD_PARSE_STATE_0:
+        if (b == 0x01) {
+          state_new = CMD_PARSE_STATE_1;
+        } else {
+          return SUCCESS;
+        }
+        break;
+
+      case CMD_PARSE_STATE_1:
+        if (b == 0x20) {
+          state_new = CMD_PARSE_STATE_2;
+        } else {
+          return SUCCESS;
+        }
+        break;
+
+      case CMD_PARSE_STATE_2:
+        if (b == 0x03) {
+          state_new = CMD_PARSE_STATE_3;
+        } else {
+          return SUCCESS;
+        }
+        break;
+
+      case CMD_PARSE_STATE_3:
+        if (b == 0xAA) {
+          state_new = CMD_PARSE_STATE_4;
+        } else {
+          return SUCCESS;
+        }
+        break;
+
+      case CMD_PARSE_STATE_4:
+        if (b == 0xEE) {
+          state_new = CMD_PARSE_STATE_5;
+        } else {
+          return SUCCESS;
+        }
+        break;
+
+      case CMD_PARSE_STATE_5:
+        if (b == 0x03) {
+          state_new = CMD_PARSE_STATE_6;
+        } else {
+          return SUCCESS;
+        }
+        break;
+
+      case CMD_PARSE_STATE_6:
+        if (b == 0x20) {
+          state_new = CMD_PARSE_STATE_7;
+        } else {
+          return SUCCESS;
+        }
+        break;
+
+      case CMD_PARSE_STATE_7:
+        if (b == 0x01) {
+          return RESET;
+        } else {
+          return SUCCESS;
+        }
+        break;
+      }
+    }
   }
 
   return SUCCESS;
@@ -154,6 +251,11 @@ int interface_stress_receive_float(int sock, uint8_t verbose, int timeout_sec,
   int_value = ntohl(int_value); // Convert from network byte order
 
   memcpy(data, &int_value, sizeof(float));
+
+  if (fabs(*data) > MAX_RUD_ANG) {
+    *data = 0;
+    return ERROR;
+  }
 
   if (verbose) {
     printf(" |__ Interface_stress: Received float: %f\r\n", *data);

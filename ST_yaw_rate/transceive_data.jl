@@ -30,6 +30,7 @@ end
 function bytes_to_float32(float_bytes::Vector{UInt8})
 	uint_value = reinterpret(UInt32, float_bytes)[1]
 	host_value = uint_value
+
 	return reinterpret(Float32, host_value)
 end
 
@@ -44,6 +45,7 @@ function transceive_read_bytes_from_simulation()
             if message_id == MSG_STATE_PSI_DOT
                 float_bytes = data[2:5]  # Remaining 4 bytes as float bytes
                 f = bytes_to_float32(float_bytes)
+
                 if abs(f) > rx_error_thresh
                     # println("transceive_data.jl: value is too large: f = $f")
                     return rx_float32_value
@@ -71,8 +73,10 @@ end
 function float32_to_bytes(value::Float32)::Vector{UInt8}
 	# Reinterpret the float as a UInt32
 	int_value = reinterpret(UInt32, value)
+
 	# Convert to network byte order (big-endian)
 	network_value = bswap(int_value)
+
 	# Convert the UInt32 to 4 bytes
 	return reinterpret(UInt8, [network_value])
 end
@@ -89,3 +93,22 @@ function transceive_send_float(value::Float32)
 	end
 end
 
+function transceive_send_cmd_byte(value::UInt8)
+	try
+		write(sock, value)
+		flush(sock)
+	catch e
+		println("transceive_data.jl: Failed to send float: $value as bytes: ", bytes)
+	end
+end
+
+function transceive_send_reset_cmd()
+	transceive_send_cmd_byte(0x01)
+	transceive_send_cmd_byte(0x20)
+	transceive_send_cmd_byte(0x03)
+	transceive_send_cmd_byte(0xAA)
+	transceive_send_cmd_byte(0xEE)
+	transceive_send_cmd_byte(0x03)
+	transceive_send_cmd_byte(0x20)
+	transceive_send_cmd_byte(0x01)
+end

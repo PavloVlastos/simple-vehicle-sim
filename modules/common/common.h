@@ -20,6 +20,7 @@
  */
 #define ERROR -1
 #define SUCCESS 0
+#define RESET 1
 
 /*
  * Blocking
@@ -54,7 +55,11 @@
 #define BASE_LENGTH (float)1.0           /* vehicle base length in meters */
 #define MIN_RUD_ANG (float)(-0.2 * M_PI) /* minimum rudder angle in radians */
 #define MAX_RUD_ANG (float)(0.2 * M_PI)  /* maximum rudder angle in radians  */
-#define MAX_ABS_SPD (float)(50.0)        /* maximum vehicle speed in m/s */
+
+/* minimum rudder angular rate in radians per second*/
+#define MAX_RUD_ANG_RATE (float)(MAX_RUD_ANG - MIN_RUD_ANG) / 0.5
+
+#define MAX_ABS_SPD (float)(50.0) /* maximum vehicle speed in m/s */
 
 /*
  * Datatypes

@@ -4,6 +4,7 @@
  * Module-level variables
  */
 static uint8_t verbose = 0;
+static uint8_t help = 0;
 static uint8_t animate = 0;
 static uint8_t stress_test = 0;
 static int max_step_num = 0;
@@ -86,6 +87,7 @@ int parse_args(int argc, char *argv[]) {
     } else if (strcmp(argv[i], "--stress-test") == 0) {
       stress_test = 1;
     } else if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0) {
+      help = 1;
       printf("optional arguments:\r\n");
       printf("    -h, --help\r\n");
       printf("    -v, --verbose\r\n");
@@ -115,6 +117,10 @@ int parse_args(int argc, char *argv[]) {
 
     if (verbose == 1) {
       printf("Argument: %d: %s\r\n", i, argv[i]);
+      if (i + 1 < argc) /* Check for next arg*/
+      {
+       printf("Argument: %d: %s\r\n", i+1, argv[i+1]);
+      }
     }
   }
 
@@ -122,6 +128,7 @@ int parse_args(int argc, char *argv[]) {
 }
 
 uint8_t parse_args_is_verbose(void) { return verbose; }
+uint8_t parse_args_is_help(void) { return help; }
 uint8_t parse_args_is_animate(void) { return animate; }
 uint8_t parse_args_is_stress_test(void) { return stress_test; }
 int parse_args_get_max_step_num(void) { return max_step_num; }
