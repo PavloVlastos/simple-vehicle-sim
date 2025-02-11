@@ -102,12 +102,13 @@ int main(int argc, char *argv[]) {
   if (verbose) {
     printf(" | Initializing Simple Vehicle Simulation (SVS) ...\r\n");
   }
+  state_t initial_state;
   state_t svs;
 
-  svs.x = MAP_DFLT_X_MIN;
-  svs.y = MAP_DFLT_Y_MIN;
-  svs.spd = spd;
-  svs.psi = 0.25 * M_PI;
+  initial_state.x = MAP_DFLT_X_MIN;
+  initial_state.y = MAP_DFLT_Y_MIN;
+  initial_state.spd = spd;
+  initial_state.psi = 0.25 * M_PI;
 
   if (verbose) {
     printf(" |__ Initializing controller ...\r\n");
@@ -117,7 +118,7 @@ int main(int argc, char *argv[]) {
   if (verbose) {
     printf(" |__ Initializing model ...\r\n");
   }
-  model_init(&svs);
+  model_init(&initial_state, &svs);
 
   if (verbose) {
     printf(" |__ Initializing map ...\r\n");
@@ -253,11 +254,7 @@ int main(int argc, char *argv[]) {
         if (verbose) {
           printf(" |__ Re-initializing model ...\r\n");
         }
-        svs.x = MAP_DFLT_X_MIN;
-        svs.y = MAP_DFLT_Y_MIN;
-        svs.spd = spd;
-        svs.psi = 0.25 * M_PI;
-        model_init(&svs);
+        model_init(&initial_state, &svs);
 
         if (verbose) {
           printf(" |__ Re-initializing planner ...\r\n");
@@ -273,7 +270,7 @@ int main(int argc, char *argv[]) {
     /*
      * Get new vehicle state information
      */
-    model_get_position(position);
+    model_get_position(position, &svs);
 
     /*
      * Path planner logic here
@@ -310,8 +307,7 @@ int main(int argc, char *argv[]) {
      * Update model
      */
     if (safe_to_integrate) {
-      model_update(dt, steer_cmd, svs.spd, 0.0, 0.0);
-      model_get_state(&svs);
+      model_update(&svs, dt, steer_cmd, svs.spd, 0.0, 0.0);
 
       count++;
 
