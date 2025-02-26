@@ -2,13 +2,16 @@
 CC = gcc
 
 # Define the compilation flags
-CFLAGS = -std=c11 -O0 -Wall -g -I ../ \
+CFLAGS = -std=c11 -D_GNU_SOURCE -O0 -Wall -g -I ../ \
 	-I../modules -I../modules/common \
 	-I../modules/interface_visualize \
 	-I../modules/interface_stress \
 	-I../modules/lin_alg -I../modules/model \
 	-I../modules/controller -I../modules/planner -I obj \
 	-I../modules/parse_args -I../modules/map 
+
+# Define coverage flags
+GCOV_FLAGS = -fprofile-arcs -ftest-coverage
 
 # Define the linker flags
 LDFLAGS = -lm
@@ -49,20 +52,20 @@ OBJS =  $(OBJ_DIR)/$(MAIN_FILE_NAME).o \
 $(EXEC): $(OBJS)
 	@mkdir -p $(BIN_DIR)
 	@echo "Linking $@"
-	$(CC) $(OBJS) $(LDFLAGS) -o $@
+	$(CC) $(OBJS) $(LDFLAGS) $(GCOV_FLAGS) -o $@
 
 # Rule to build main object file
 $(OBJ_DIR)/$(MAIN_FILE_NAME).o: ../$(MAIN_FILE_NAME).c
 	@echo "Compiling $< to $@"
 	@mkdir -p $(OBJ_DIR)
-	$(CC) $(CFLAGS) -c -o $@ $<
+	$(CC) $(CFLAGS) $(GCOV_FLAGS) -c -o $@ $<
 
 # Loop to create rules for each source file
 define MAKE_OBJ_RULE
 $(OBJ_DIR)/$(notdir $(basename $(1))).o: $(1)
 	@echo "Compiling $$< to $$@"
 	@mkdir -p $(dir $(OBJ_DIR)/$(notdir $(1)))
-	$(CC) $(CFLAGS) -c -o $$@ $$<
+	$(CC) $(CFLAGS) $(GCOV_FLAGS) -c -o $$@ $$<
 endef
 
 $(foreach src,$(CSRCS),$(eval $(call MAKE_OBJ_RULE,$(src))))
