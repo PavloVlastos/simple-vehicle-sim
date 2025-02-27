@@ -98,7 +98,7 @@ function transceive_send_cmd_byte(value::UInt8)
 		write(sock, value)
 		flush(sock)
 	catch e
-		println("transceive_data.jl: Failed to send float: $value as bytes: ", bytes)
+		println("transceive_data.jl: Failed to send byte: $value: ", value)
 	end
 end
 

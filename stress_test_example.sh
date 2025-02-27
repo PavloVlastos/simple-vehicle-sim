@@ -7,7 +7,7 @@ if [ ! -x "$BINARY_PATH" ]; then
     exit 1
 fi
 
-python visualize/visualize_sim.py &
+python visualize/visualize_sim.py > visualize/python_output.txt 2>&1 &
 
 sleep 3
 
@@ -17,11 +17,7 @@ cd ./make_primary \
 && make clean \
 && make
 
-cd coverage
-rm *.*
-cd ..
-
-./bin/main --kp 1.5 -v -m 100 -a --speed 10.0 --dt 0.01 -p 1 --stress-test
+./bin/main --kp 1.5 -v -m 100 -a --speed 10.0 --dt 0.05 -p 1 --stress-test
 
 gcov -o ./coverage/ ../main.c 
 
@@ -34,9 +30,9 @@ ls ./coverage
 
 genhtml ./coverage/main.info --output-directory ./coverage/
 
+firefox ./coverage/index.html
+
 BINARY_PID=$!
 kill $BINARY_PID
 wait $BINARY_PID 2>/dev/null
 echo "Stress test of main executable complete"
-
-firefox ./coverage/index.html

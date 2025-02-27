@@ -236,7 +236,7 @@ int main(int argc, char *argv[]) {
       status = interface_stress_receive_float(socket_stress_test, verbose,
                                               t_out_sec, &rx_stress);
 
-      if (status != SUCCESS) {
+      if ((status != SUCCESS) || isnan(rx_stress)) {
         rx_stress = 0;
       }
       rx_stress_old = rx_stress;
@@ -323,7 +323,7 @@ int main(int argc, char *argv[]) {
              t, count, cs_curr, svs.x, svs.y, svs.psi, svs.psi_dot, steer_cmd,
              svs.spd, target_wp[0], target_wp[1]);
 
-      if ((count >= max_step_num) && (max_step_num > 0)) {
+      if ((count >= max_step_num) && (max_step_num > 0) && (stress_test == 0)) {
         if (verbose) {
           printf("Maximum step count reached %d/%d\r\n", count, max_step_num);
         }

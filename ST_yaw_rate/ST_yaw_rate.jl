@@ -25,11 +25,7 @@ end
 
 
 function initialize!(sim::simple_vehicle)
-	# In this example yaw rate is the only consideration and resetting the 
-	# vehicle's entire state in the simple vehicle program is not implemented 
-	# here. When resetting the __entire__ vehicle state, a function will need to 
-	# be implemented that sends a "vehicle-state-reset-message" to the 
-	# c-simulation that message not implemented yet
+	# In this example yaw rate is the only consideration
 	sim.count = 0
 	sim.psi_dot = 0.0
 	sim.log = [sim.psi_dot]
@@ -61,7 +57,7 @@ sim = simple_vehicle()
 
 transceive_init(IP_ADDR, PORT_STRESS)
 
-mcs = AdaStress.Solvers.MCS(num_iterations=2000)
+mcs = AdaStress.Solvers.MCS(num_iterations=200)
 
 mdp = AdaStress.ASTMDP(simple_vehicle())
 mdp.reward.event_bonus = 100.0
